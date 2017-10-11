@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nymph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.nymph.com/nymph"
+	xsi:schemaLocation="http://www.nymph.com/nymph http://www.nymph.com/nymph">
+	
+	<scanners>
+		<scanner location="com.nymph"/>
+	</scanners>
+	<webConfig>
+		<encoding value="utf-8"/>
+		<port value="8080"/>
+		<urlPattern value="/"/>
+		<suffix value=".jsp"/>
+		<exclutions>
+			<exclution value="/css/*"/>
+		</exclutions>
+	</webConfig>
+	
+	<component class="test.Man" id="man">
+		<setter name="setName" value="学友"/>
+		<setter name="setProperties" ref="properties"/>
+	</component>
+	
+	<component class="java.util.Properties" id="properties">
+		<method name="setProperty">
+			<property value="德华"/>
+			<property value="33"/>
+		</method>
+		<method name="setProperty">
+			<property value="德华2"/>
+			<property value="34"/>
+		</method>
+		<method name="setProperty">
+			<property value="德华3"/>
+			<property value="35"/>
+		</method>
+		<method name="setProperty">
+			<property value="德华4"/>
+			<property value="36"/>
+		</method>
+	</component>
+	
+</nymph>
