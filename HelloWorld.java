@@ -4,7 +4,7 @@ import com.nymph.annotation.GET;
 import com.nymph.annotation.HTTP;
 import com.nymph.annotation.Injection;
 import com.nymph.annotation.JSON;
-import com.nymph.annotation.UrlVar;
+import com.nymph.annotation.UrlHolder;
 import com.nymph.start.MainStarter;
 import com.nymph.transfer.Transfer;
 
