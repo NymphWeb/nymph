@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import com.nymph.annotation.Bean;
-import com.nymph.annotation.ConfBean;
+import com.nymph.annotation.ConfigurationBean;
 import com.nymph.annotation.Injection;
 
-@ConfBean
+@ConfigurationBean
 public class Man extends Person{
 	
 	
@@ -36,18 +36,6 @@ public class Man extends Person{
 		this.name = name;
 	}
 	
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("Man [controller=");
-		builder.append(controller);
-		builder.append(", properties=");
-		builder.append(properties);
-		builder.append(", name=");
-		builder.append(name);
-		builder.append("]");
-		return builder.toString();
-	}
 	@Bean
 	public Man man() {
 		Man man = new Man();
