@@ -13,7 +13,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 
 public class XmlComponent {
 	
@@ -22,7 +22,7 @@ public class XmlComponent {
 		try {
 			SAXReader sax = new SAXReader();
 			Document document = sax.read(
-				BasicUtils.getDefaultClassLoad().getResourceAsStream(location));
+				BasicUtil.getDefaultClassLoad().getResourceAsStream(location));
 			Element element = document.getRootElement();
 			return component(element.elements("component"));
 		} catch (Exception e) {
@@ -220,7 +220,7 @@ public class XmlComponent {
 	private static Object convert(Class<?> clazz, String value) throws ClassNotFoundException {
 		if (clazz == Class.class)
 			return Class.forName(value);
-		return BasicUtils.convert(clazz, value);
+		return BasicUtil.convert(clazz, value);
 	}
 	
 	private static String attrValue(Element element, String name) {

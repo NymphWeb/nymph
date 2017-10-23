@@ -1,4 +1,4 @@
-package com.nymph.context.model;
+package com.nymph.context.other;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -49,7 +49,6 @@ public class RPC4j {
 		}
 	}
 	
-	
 	public String doGet(String path, Paramter params) {
 		return doAccess(path, "GET", params.sb.substring(1));
 	}
@@ -81,6 +80,8 @@ public class RPC4j {
 	public String doDelete(String path) {
 		return doAccess(path, "DELETE", null);
 	}
+	
+	
 	
 	public void close() {
 		try {
@@ -160,7 +161,7 @@ public class RPC4j {
 		header = builder.append("@path@ HTTP/1.1\n")
 			.append("Host:"+ host +":"+ port +"\n")
 			.append("Content-Type: application/x-www-form-urlencoded\n")
-			.append("User-Agent: NymphVisitor/1.0\n")
+			.append("User-Agent: NymphRPC/1.0\n")
 			.append("Accept: */*\n")
 			.append("Content-Length: @length@\n")
 			.append("Accept-Encoding: gzip, deflate\n")

@@ -13,7 +13,7 @@ import java.util.Date;
  * @author NYMPH
  * @date 2017年9月26日下午8:59:19
  */
-public abstract class DateUtils {
+public abstract class DateUtil {
 
 	/**
 	 * 将Date解析成指定格式的字符串

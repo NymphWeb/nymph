@@ -6,7 +6,7 @@ package com.nymph.utils;
  * @author LiangTianDong
  * @date 2017年10月1日下午9:57:36
  */
-public abstract class StrUtils {
+public abstract class StrUtil {
 	
 	/**
 	 * 取出字符串中与 指定的不相同的字符串 
@@ -46,7 +46,7 @@ public abstract class StrUtils {
 	 * @param string
 	 * @return
 	 */
-	public static String notNull(String string) {
+	public static String emptyString(String string) {
 		return string == null ? "" : string;
 	}
 	/**

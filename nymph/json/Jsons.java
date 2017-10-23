@@ -8,7 +8,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.nymph.utils.DateUtils;
+import com.nymph.utils.DateUtil;
 
 /**
  * 将普通对象和集合解析成json字符串
@@ -86,7 +86,7 @@ public abstract class Jsons {
 				String resolve = null;
 				Date date = (Date) field.get(json);
 				if (Dateformat != null) {
-					resolve = DateUtils.resolve(date, Dateformat);
+					resolve = DateUtil.resolve(date, Dateformat);
 				} else {
 					resolve = String.valueOf(date);
 				}

@@ -5,7 +5,7 @@ import com.nymph.bean.BeansHandler;
 import com.nymph.bean.impl.DefaultBeansFactory;
 import com.nymph.config.XmlConfUtil;
 import com.nymph.config.YmlConfUtil;
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
@@ -64,7 +64,7 @@ public class MainStarter extends WebApplicationContext {
 		// 设置端口
 		TOMCAT.setPort(config.getPort());
 		// 设置catalina home
-		TOMCAT.setBaseDir(BasicUtils.getSource(""));
+		TOMCAT.setBaseDir(BasicUtil.getSource(""));
 		try {
 			/*
 			 * 设置存放视图文件的地方, 如jsp, css, js
@@ -72,9 +72,12 @@ public class MainStarter extends WebApplicationContext {
 			 * 因为并不能读取到jar包内的jsp文件
 			 */
 			Optional<String> webPath = config.getWebappPath();
-			File webapp = new File(webPath.orElse(BasicUtils.getSource("webapp")));
+			File webapp = new File(webPath.orElse(BasicUtil.getSource("src/main/webapp")));
 			if (!webapp.exists()) {
-				webapp = new File(BasicUtils.getSource("src/main/webapp"));
+				webapp = new File(BasicUtil.getSource("webapp"));
+			}
+			if (!webapp.exists()) {
+				webapp = new File(BasicUtil.getSource("WebContent"));
 			}
 			
 			Context context = new StandardContext();
@@ -120,7 +123,7 @@ public class MainStarter extends WebApplicationContext {
 	 * @return
 	 */
 	public String[] defaultXml() {
-		File file = new File(BasicUtils.getSource(""));
+		File file = new File(BasicUtil.getSource(""));
 		List<String> collect = Arrays.stream(file.listFiles()).filter(f -> {
 			String name = f.getName();
 			Matcher matcher = pattern.matcher(name);
@@ -141,7 +144,7 @@ public class MainStarter extends WebApplicationContext {
 		beansFactory.setConfiguration(configuration);
 		Optional<String> handler = configuration.getBeansHandler();
 		String handlerClass = handler.orElse(DEFAULT_BEANS_HANDLER);
-		BeansHandler beansHandler = BasicUtils.newInstance(handlerClass);
+		BeansHandler beansHandler = BasicUtil.newInstance(handlerClass);
 		beansFactory.setBeansHandler(beansHandler);
 		// 将所有bean对象注册到bean容器
 		beansFactory.register();

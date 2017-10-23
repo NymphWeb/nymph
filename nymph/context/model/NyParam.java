@@ -2,7 +2,7 @@ package com.nymph.context.model;
 
 import java.util.Map;
 
-import com.nymph.bean.impl.HttpBeansContainer;
+import com.nymph.bean.impl.HttpBeansContainer.HttpBean;
 import com.nymph.context.wrapper.AsyncWrapper;
 import com.nymph.transfer.Multipart;
 /**
@@ -18,9 +18,9 @@ public class NyParam {
 	
 	private Multipart multipart;
 	
-	private HttpBeansContainer.HttpBean httpBean;
+	private HttpBean httpBean;
 	
-	public NyParam(	HttpBeansContainer.HttpBean httpBean,
+	public NyParam(	HttpBean httpBean,
 					Map<String, String[]> params,
 					AsyncWrapper context,
 					Multipart multipart) {
@@ -32,7 +32,7 @@ public class NyParam {
 		this.multipart = multipart;
 	}
 	
-	public HttpBeansContainer.HttpBean getHttpBean() {
+	public HttpBean getHttpBean() {
 		return httpBean;
 	}
 

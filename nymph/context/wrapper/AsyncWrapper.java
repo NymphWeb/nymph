@@ -1,8 +1,8 @@
 package com.nymph.context.wrapper;
 
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 import com.nymph.utils.PageCSS;
-import com.nymph.utils.StrUtils;
+import com.nymph.utils.StrUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +66,11 @@ public final class AsyncWrapper {
 	}
 
 	public String contentType() {
-		return StrUtils.notNull(request.getContentType());
+		return StrUtil.emptyString(request.getContentType());
 	}
 
 	public String contextPath() {
-		return StrUtils.notNull(request.getContextPath());
+		return StrUtil.emptyString(request.getContextPath());
 	}
 
 	public HttpServletResponse httpResponse() {
@@ -180,7 +180,7 @@ public final class AsyncWrapper {
 		} catch (IOException e) {
 			LOGGER.error(null, e);
 		} finally {
-			BasicUtils.closed(channel, inputStream);
+			BasicUtil.closed(channel, inputStream);
 		}
 	}
 }

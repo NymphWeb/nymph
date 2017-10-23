@@ -3,10 +3,6 @@
  */
 package com.nymph.bean.impl;
 
-import com.nymph.annotation.HTTP;
-import com.nymph.annotation.Request;
-import com.nymph.utils.BasicUtils;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -14,6 +10,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import com.nymph.annotation.HTTP;
+import com.nymph.annotation.Request;
+import com.nymph.utils.AnnoUtil;
 
 /**
  * 关于web层的bean的一些处理, 主要是将一个完整的url映射到具体的一个方法, 这样可以加快访问的速度, 直接通过浏览器
@@ -28,18 +28,19 @@ public class HttpBeansContainer {
 	/**
 	 * 对拥有@HTTP注解的bean进行处理主要是将@HTTP注解的value和@Request系列注解(@GET这种)
 	 *     的value拼接成一个完整的表示url地址的字符串, 然后存入map中, 这样当一个请求访问过来
-	 *     时只需要拿到这个请求的uri就可以直接获取到对应的Class和Method,如果用@UrlVal
+	 *     时只需要拿到这个请求的uri就可以直接获取到对应的Class和Method,如果用@UrlHolder
 	 *     注解这种占位符形式的url的话就只有遍历来寻找是否存在请求所映射的类了
 	 * @param clazz	待处理的Class
 	 */
 	public void filterAlsoSave(Class<?> clazz) throws IllegalAccessException {
-		HTTP http; // 没有@HTTP注解的bean则不进行处理
-		if ((http = clazz.getAnnotation(HTTP.class)) == null)
+		HTTP http = clazz.getAnnotation(HTTP.class);
+		// 没有@HTTP注解的bean则不进行处理
+		if (http == null)
 			return;
 
 		for (Method method : clazz.getDeclaredMethods()) {
 			Annotation[] annotations = method.getAnnotations();
-			Annotation request = BasicUtils.getAnno(annotations, Request.class);
+			Annotation request = AnnoUtil.get(annotations, Request.class);
 			if (request != null) {
 				methodModifierCheck(method);
 				String url = joinUrl(http.value(), request);
@@ -54,24 +55,10 @@ public class HttpBeansContainer {
 	 * @return			拼接好的url
 	 */
 	private String joinUrl(String spaceVal, Annotation method) {
-		String methodVal = annoValue(method, "value");
+		String methodVal = AnnoUtil.getValueOfValueMethod(method);
 		return ("/".equals(spaceVal) || spaceVal.equals("") ? "" :
 				spaceVal.startsWith("/") ? spaceVal : "/" + spaceVal)
 				+ (!methodVal.startsWith("/") ? "/" + methodVal : methodVal);
-	}
-	/**
-	 * 获取方法上@GET ,@POST 等请求类型注解的值
-	 * @param request
-	 * @param methodName
-	 * @return
-	 */
-	private String annoValue(Annotation request, String methodName) {
-		try {
-			return String.valueOf(request.getClass().getMethod(methodName).invoke(request));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 
 	/**

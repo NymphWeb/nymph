@@ -1,6 +1,11 @@
 package com.nymph.bean.impl;
 
 import com.nymph.bean.*;
+import com.nymph.bean.component.BeansComponent;
+import com.nymph.bean.component.BeansProxyHandler;
+import com.nymph.bean.component.BeansRegister;
+import com.nymph.bean.component.EnableBeanProxyHandler;
+import com.nymph.bean.component.EnableBeanRegister;
 import com.nymph.config.Configuration;
 
 import java.util.Collection;
@@ -10,10 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * BeansFactory的实现	
- * @author NYMPH
+ * @author LiuYang
+ * @author LiangTianDong
  * @date 2017年10月3日下午2:26:28
  */
-public class DefaultBeansFactory implements BeansFactory {
+public class DefaultBeansFactory implements WebApplicationBeansFactory {
 	/**
 	 *  存放bean实例的容器, 以类名为键
 	 */
@@ -23,7 +29,7 @@ public class DefaultBeansFactory implements BeansFactory {
 	 */
 	private ScannerClasspathAndJar autoScanBeans;
 	/**
-	 *  bean依赖自动注入的实现
+	 *  bean依赖注入的实现
 	 */
 	private PropertyValueInjection autoInjectBeans;
 	/**
@@ -52,7 +58,7 @@ public class DefaultBeansFactory implements BeansFactory {
 		beansComponent = new DefaultBeansComponent();
 	}
 	
-	private void initScannerSuport() {
+	private void initScannerSupport() {
 		autoScanBeans = new ScannerClasspathAndJar(
 			container, httpContainer, beansHandler, beansComponent);
 		autoInjectBeans = new PropertyValueInjection(container);
@@ -76,18 +82,13 @@ public class DefaultBeansFactory implements BeansFactory {
 	 */
 	@Override
 	public void register() {
-		initScannerSuport();
+		initScannerSupport();
 		// 扫描指定路径的bean
 		autoScanBeans.scanner(Configuration);
 		// 初始化bean组件
 		initBeansExpandComponents();
 		// 为bean对象的@Injection注解字段和方法注入值
 		autoInjectBeans.injection();
-	}
-
-	@Override
-	public void registerBean(String name, Object bean) {
-		container.put(name, bean);
 	}
 
 	@Override
@@ -103,7 +104,7 @@ public class DefaultBeansFactory implements BeansFactory {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getBean(Class<T> beanClass) {
-		return (T) container.get(beanClass.getSimpleName());
+		return (T) container.get(beanClass.getName());
 	}
 
 	@Override
@@ -154,15 +155,6 @@ public class DefaultBeansFactory implements BeansFactory {
 	@Override
 	public void setBeansProxyHandler(BeansProxyHandler proxyHandler) {
 		this.proxyHandler = proxyHandler;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("DefaultBeansFactory [container=");
-		builder.append(container);
-		builder.append("]");
-		return builder.toString();
 	}
 	
 }

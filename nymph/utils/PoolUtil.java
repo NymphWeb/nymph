@@ -1,25 +1,25 @@
 package com.nymph.utils;
 
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public abstract class PoolUtils {
+public abstract class PoolUtil {
 	
-	public static ThreadPoolExecutor CacheThreadPool(int maxThread) {
+	public static ThreadPoolExecutor fixedThreadPool() {
 		int processors = Runtime.getRuntime().availableProcessors();
-		return new ThreadPoolExecutor(processors / 3,
-									maxThread,
-									60L,
-									TimeUnit.SECONDS,
-									new LinkedBlockingDeque<>(maxThread));
+		return new ThreadPoolExecutor(processors * 2,
+									processors * 2,
+									0L,
+									TimeUnit.MILLISECONDS,
+									new LinkedBlockingQueue<>());
 	}
 
-	public static ThreadPoolExecutor defaultCaheThredPool() {
+	public static ThreadPoolExecutor cacheThredPool() {
 		int processors = Runtime.getRuntime().availableProcessors();
 		return new ThreadPoolExecutor(0,
-									processors * 100,
+									processors * 2,
 									60L,
 									TimeUnit.SECONDS,
 									new SynchronousQueue<>());

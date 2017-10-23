@@ -1,6 +1,6 @@
 package com.nymph.bean.proxy;
 
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 
@@ -52,7 +52,7 @@ public abstract class AopUtils {
 			throw new IllegalArgumentException("目标对象必须实现至少一个接口");
 		}
 
-		return Proxy.newProxyInstance(BasicUtils.getDefaultClassLoad(), interfaces, h);
+		return Proxy.newProxyInstance(BasicUtil.getDefaultClassLoad(), interfaces, h);
 	}
 
 	/**
@@ -74,6 +74,6 @@ public abstract class AopUtils {
 			}
 		}
 
-		return Proxy.newProxyInstance(BasicUtils.getDefaultClassLoad(), interfaces, h);
+		return Proxy.newProxyInstance(BasicUtil.getDefaultClassLoad(), interfaces, h);
 	}
 }

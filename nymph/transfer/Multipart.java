@@ -1,6 +1,6 @@
 package com.nymph.transfer;
 
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,7 +91,7 @@ public final class Multipart {
 				LOG.error(null, e);
 				return null;
 			} finally {
-				BasicUtils.closed(channel, out);
+				BasicUtil.closed(channel, out);
 			}
 		}
 		

@@ -7,7 +7,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 
 public class XmlConfUtil {
 	
@@ -15,7 +15,7 @@ public class XmlConfUtil {
 		try {
 			SAXReader sax = new SAXReader();
 			Document document = sax.read(
-				BasicUtils.getDefaultClassLoad().getResourceAsStream(location));
+				BasicUtil.getDefaultClassLoad().getResourceAsStream(location));
 			Element element = document.getRootElement();
 			return read(element);
 		} catch (Exception e) {
@@ -31,7 +31,7 @@ public class XmlConfUtil {
 			XmlConfigurations configurations = null;
 			for (String location : locations) {
 				Document document = sax.read(
-					BasicUtils.getDefaultClassLoad().getResourceAsStream(location));
+					BasicUtil.getDefaultClassLoad().getResourceAsStream(location));
 				Element element = document.getRootElement();
 				if (isFirst) {
 					configurations = read(element);

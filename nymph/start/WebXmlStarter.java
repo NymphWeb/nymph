@@ -3,7 +3,7 @@ package com.nymph.start;
 import com.nymph.bean.BeansHandler;
 import com.nymph.config.XmlConfUtil;
 import com.nymph.config.YmlConfUtil;
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 
 import javax.servlet.*;
 import javax.servlet.ServletRegistration.Dynamic;
@@ -32,7 +32,7 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 		// 实例化bean处理器
 		Optional<String> handler = configuration.getBeansHandler();
 		String finalClass = handler.orElse(DEFAULT_BEANS_HANDLER);
-		BeansHandler beansHandler = BasicUtils.newInstance(finalClass);
+		BeansHandler beansHandler = BasicUtil.newInstance(finalClass);
 		beansFactory.setBeansHandler(beansHandler);
 		beansFactory.setConfiguration(configuration);
 		// 将所有bean对象注册到bean容器
@@ -118,7 +118,6 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 	}
 
 	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-	}
+	public void contextDestroyed(ServletContextEvent sce) {}
 
 }

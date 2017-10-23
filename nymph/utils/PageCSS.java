@@ -13,7 +13,7 @@ public interface PageCSS {
 	 */
 	public static String join(Object... array) {
 		StringBuffer string = new StringBuffer();
-		String date = DateUtils.resolve(new Date(), "yyyy-MM-dd HH:mm:ss");
+		String date = DateUtil.resolve(new Date(), "yyyy-MM-dd HH:mm:ss");
 		for (Object element : array) {
 			if (element instanceof Object[]) {
 				for (Object t : (Object[]) element) {

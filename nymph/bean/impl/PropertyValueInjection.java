@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nymph.annotation.Injection;
-import com.nymph.bean.BeansProxyHandler;
+import com.nymph.bean.component.BeansProxyHandler;
 
 /**
  * 注入bean中被@Injection注解标识的字段或方法	

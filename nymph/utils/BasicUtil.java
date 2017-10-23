@@ -1,7 +1,6 @@
 package com.nymph.utils;
 
 import java.io.Serializable;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
  * @author LiangTianDong
  * @date 2017年10月2日下午8:34:10
  */
-public abstract class BasicUtils {
+public abstract class BasicUtil {
 	
 	/**
 	 * 根据类路径反射创建对象
@@ -78,7 +77,7 @@ public abstract class BasicUtils {
 	public static ClassLoader getDefaultClassLoad() {
 		ClassLoader loader = Thread.currentThread().getContextClassLoader();
 		if (loader == null)
-			loader = BasicUtils.class.getClassLoader();
+			loader = BasicUtil.class.getClassLoader();
 		if (loader == null)
 			loader = ClassLoader.getSystemClassLoader();
 		
@@ -130,24 +129,15 @@ public abstract class BasicUtils {
 	 * @return
 	 */
 	public static boolean isCommonType(Class<?> clazz) {
-		String simpleName = clazz.getSimpleName().toUpperCase();
-		switch (simpleName) {
-		case "STRING":
-		case "INT":
-		case "INTEGER":
-		case "BOOLEAN":
-		case "NUMBER":
-		case "SHORT":
-		case "BYTE":
-		case "LONG":
-		case "DOUBLE":
-		case "FLOAT":
-		case "CHAR":
-		case "CHARACTER":
-			return true;
-		default:
-			return false;
-		}
+		return String.class == clazz ||
+				int.class == clazz || Integer.class == clazz ||
+				boolean.class == clazz || Boolean.class == clazz || 
+				double.class == clazz || Double.class == clazz ||
+				long.class == clazz || Long.class == clazz || 
+				byte.class == clazz || Byte.class == clazz || 
+				float.class == clazz || Float.class == clazz || 
+				short.class == clazz || Short.class == clazz || 
+				char.class == clazz || Character.class == clazz;
 	}
 
 	/**
@@ -242,55 +232,6 @@ public abstract class BasicUtils {
 			return Arrays.asList(array).stream().map(ele -> Double.valueOf(ele)).collect(Collectors.toList());
 		}
 		return Collections.emptyList();
-	}
-	/**
-	 * 判断一个注解数组是否包含某个注解相同类型的注解...
-	 * 
-	 * @param annos
-	 *            注解数组
-	 * @param parent
-	 *            目标注解
-	 * @return 注解数组中包含的注解
-	 */
-	public static Annotation getAnno(Annotation[] annos, Class<? extends Annotation> parent) {
-		for (Annotation annotation : annos) {
-			if (annotation.annotationType().isAnnotationPresent(parent)) {
-				return annotation;
-			}
-		}
-		return null;
-	}
-	
-	/**
-	 * 判断一个注解数组是否包含某个注解相同类型的注解...
-	 * @param annos  注解数组
-	 * @param parent 目标注解
-	 * @return 注解数组中包含的注解类型
-	 */
-	public static Class<? extends Annotation> getAnnoType(Annotation[] annos, Class<? extends Annotation> parent) {
-		for (Annotation annotation : annos) {
-			Class<? extends Annotation> annotationType = annotation.annotationType();
-			if (annotationType.isAnnotationPresent(parent)) {
-				return annotationType;
-			}
-		}
-		return null;
-	}
-	/**
-	 * 判断一个注解集合中是否包含某个注解
-	 * @comment 
-	 * @param annos
-	 * @param parent
-	 * @return <code>true</code> <b>or</b> <code>false</code>
-	 */
-	public static boolean existAnno(Annotation[] annos, Class<? extends Annotation> parent) {
-		for (Annotation annotation : annos) {
-			if (annotation.annotationType().isAnnotationPresent(parent) || 
-				annotation.annotationType() == parent) {
-				return true;
-			}
-		}
-		return false;
 	}
 	
 	/**

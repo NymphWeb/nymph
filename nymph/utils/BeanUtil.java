@@ -8,14 +8,12 @@ import java.util.Arrays;
  * @author NYMPH
  * @date 2017年10月7日下午8:33:21
  */
-public abstract class BeanUtils {
+public abstract class BeanUtil {
 	/**
 	 * copy符合JavaBean规范的对象
-	 * @param source
-	 *            源对象
-	 * @param target
-	 *            要copy的对象
-	 * @return
+	 * @param source  源对象
+	 * @param target  要copy的对象
+	 * @return		  copy完成的对象
 	 */
 	public static <T> T copyOf(Object source, T target) {
 		return copyOf(source, target, null);
@@ -23,13 +21,10 @@ public abstract class BeanUtils {
 
 	/**
 	 * copy符合JavaBean规范的对象
-	 * @param source
-	 *            源对象
-	 * @param target
-	 *            要copy的对象
-	 * @param exclude
-	 *            要忽略的方法名
-	 * @return
+	 * @param source   源对象
+	 * @param target   要copy的对象
+	 * @param exclude  要忽略的方法名
+	 * @return		   copy完成的对象
 	 */
 	public static <T> T copyOf(Object source, T target, String exclude) {
 		Method[] sourceMethod = source.getClass().getMethods();

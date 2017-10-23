@@ -14,7 +14,7 @@ import com.nymph.context.model.NyParam;
 import com.nymph.context.model.NyView;
 import com.nymph.context.wrapper.AsyncWrapper;
 import com.nymph.queue.NyQueue;
-import com.nymph.utils.PoolUtils;
+import com.nymph.utils.PoolUtil;
 
 /**
  * 请求调度器,通过三个队列实现并发处理请求和响应结果
@@ -22,14 +22,14 @@ import com.nymph.utils.PoolUtils;
  * @author LiangTianDong
  * @date 2017年9月26日下午8:16:28
  */
-public final class NyDispatcher extends HttpServlet {
+public final class NyDispatcher extends HttpServlet implements Runnable {
 	private static final long serialVersionUID = 1L;
 	/**
 	 *  执行3个队列的线程池
 	 */
-	private final ExecutorService urlPool = PoolUtils.defaultCaheThredPool();
-	private final ExecutorService paramPool = PoolUtils.defaultCaheThredPool();
-	private final ExecutorService viewPool = PoolUtils.defaultCaheThredPool();
+	private final ExecutorService urlPool = PoolUtil.cacheThredPool();
+	private final ExecutorService paramPool = PoolUtil.cacheThredPool();
+	private final ExecutorService viewPool = PoolUtil.cacheThredPool();
 	/**
 	 *  asyncContext队列
 	 */
@@ -78,26 +78,14 @@ public final class NyDispatcher extends HttpServlet {
 	 */
 	@Override
 	public void init() throws ServletException {
-		new Thread(() -> {
-			while (true) {dispatchUrl();}
-		}).start();
-
-		new Thread(() -> {
-			while (true) {dispatchParam();}
-		}).start();
-
-		new Thread(() -> {
-			while (true) {dispatchView();}
-		}).start();
+		new Thread(this, "URL").start();
+		new Thread(this, "PARAM").start();
+		new Thread(this, "VIEW").start();
 	}
 
 	@Override
 	public void destroy() {
 		try {
-			while ((ASYNC_QUEUE.size() + PARAMS_QUEUE.size() + VIEW_QUEUE.size()) != 0) {
-				Thread.sleep(1000);
-			}
-
 			urlPool.awaitTermination(30, TimeUnit.MINUTES);
 			paramPool.awaitTermination(30, TimeUnit.MINUTES);
 			viewPool.awaitTermination(30, TimeUnit.MINUTES);
@@ -108,5 +96,33 @@ public final class NyDispatcher extends HttpServlet {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void run() {
+		String name = Thread.currentThread().getName();
+		
+		if ("URL".equals(name)) {
+			while (true) {
+				try {
+					dispatchUrl();
+				} catch (Throwable e) {}
+			}
+		}
+		else if ("PARAM".equals(name)) {
+			while (true) {
+				try {
+					dispatchParam();
+				} catch (Throwable e) {}
+			}
+		}
+		else {
+			while (true) {
+				try {
+					dispatchView();
+				} catch (Throwable e) {}
+			}
+		}
+		
 	}
 }

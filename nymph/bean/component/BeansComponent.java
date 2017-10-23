@@ -1,4 +1,4 @@
-package com.nymph.bean;
+package com.nymph.bean.component;
 
 import com.nymph.interceptor.NyInterceptors;
 

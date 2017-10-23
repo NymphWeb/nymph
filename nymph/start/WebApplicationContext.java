@@ -1,12 +1,12 @@
 package com.nymph.start;
 
-import com.nymph.bean.BeansComponent;
+import com.nymph.bean.component.BeansComponent;
 import com.nymph.config.WebConfig;
 import com.nymph.context.impl.AbstractResolver;
 import com.nymph.exception.EnableExceptionHandler;
 import com.nymph.exception.ExceptionHandler;
 import com.nymph.exception.impl.ExceptionHandlerImpl;
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,7 +44,7 @@ public abstract class WebApplicationContext extends AbstractResolver {
 		initializedComponents();
 		// 加载拦截器链
 		List<String> interceptorChain = config.getInterceptors();
-		intercepts.addAll(BasicUtils.newInstance(interceptorChain));
+		intercepts.addAll(BasicUtil.newInstance(interceptorChain));
 		Collections.sort(intercepts);
 	}
 	

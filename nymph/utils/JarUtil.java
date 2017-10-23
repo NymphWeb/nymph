@@ -8,7 +8,7 @@ import java.util.jar.JarFile;
  * @author Nymph
  * @date 2017年10月7日下午8:32:40
  */
-public abstract class JarUtils {
+public abstract class JarUtil {
 	
 	/**
 	 * 根据给出的包路径寻找jar包
@@ -17,7 +17,7 @@ public abstract class JarUtils {
 	 */
 	public static JarFile getJarFile(String jarLocation) {
 		String location = jarLocation.replace(".", "/");
-		String source = BasicUtils.getSource(location);
+		String source = BasicUtil.getSource(location);
 		String replace = source.replace("file:/", "")
 				.replace(String.format("!/%s", location), "");
 		

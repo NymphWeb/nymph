@@ -1,7 +1,7 @@
 package com.nymph.context;
 
 /**
- * @comment 并发的解析器基类,子类必须实现run方法来达到并发的处理请求
+ * 并发的解析器基类,子类必须实现run方法来达到并发的处理请求
  * @author NYMPH
  * @date 2017年9月26日2017年9月26日
  */

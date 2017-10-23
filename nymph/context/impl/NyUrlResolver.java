@@ -7,7 +7,7 @@ import com.nymph.context.model.NyParam;
 import com.nymph.context.wrapper.AsyncWrapper;
 import com.nymph.exception.NoSuchClassException;
 import com.nymph.transfer.Multipart;
-import com.nymph.utils.StrUtils;
+import com.nymph.utils.StrUtil;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
@@ -47,7 +47,7 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 		String contextPath = wrapper.contextPath();
 
 		String requestURI = request.getRequestURI();
-		String urlMapping = StrUtils.delete(requestURI, contextPath);
+		String urlMapping = StrUtil.delete(requestURI, contextPath);
 		
 		// 获取url映射的类和方法 
 		HttpBean httpBean = placeHolderHandler(urlMapping);
@@ -73,14 +73,15 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 			return httpBean;
 		// 否则遍历httpMap中的url
 		out: for (Entry<String, HttpBean> kv : container.getAllHttpBean()) {
-			
-			String[] requestUrls = url.split("/"); // 浏览器请求的地址
-			String[] nativeUrls = kv.getKey().split("/"); // httpMap中保存的地址
+			// 浏览器请求的地址
+			String[] requestUrls = url.split("/");
+			// httpBean中保存的地址
+			String[] nativeUrls = kv.getKey().split("/");
 			
 			if (requestUrls.length == nativeUrls.length) {
 				HttpBean bean = kv.getValue();
 				// 存放占位符和对应值的Map
-				Map<String, String> placeHolder = new HashMap<>(8);
+				Map<String, String> placeHolder = new HashMap<>();
 				
 				for (int i = 0; i < nativeUrls.length; i++) {
 					if (nativeUrls[i].startsWith("@")) {
@@ -105,7 +106,7 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 		ServletFileUpload servletFileUpload = new ServletFileUpload(disk);
 		List<FileItem> items = servletFileUpload.parseRequest(request);
 
-		Map<String, String[]> params = new HashMap<>(24);
+		Map<String, String[]> params = new HashMap<>();
 
 		for (FileItem fileItem : items) {
 			if (fileItem.isFormField()) {

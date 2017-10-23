@@ -1,6 +1,6 @@
 package com.nymph.config;
 
-import com.nymph.utils.BasicUtils;
+import com.nymph.utils.BasicUtil;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.InputStream;
@@ -22,7 +22,7 @@ public final class YmlConfUtil {
 	 */
 	public static YmlConfigurations readYml(String location) {
 		Yaml yaml = new Yaml();
-		InputStream stream = BasicUtils.getDefaultClassLoad().getResourceAsStream(location);
+		InputStream stream = BasicUtil.getDefaultClassLoad().getResourceAsStream(location);
 		return yaml.loadAs(stream, CONFIG_CLASS);
 	}
 
@@ -36,7 +36,7 @@ public final class YmlConfUtil {
 	public static YmlConfigurations readYmls(String... locations) {
 		Yaml yaml = new Yaml();
 		YmlConfigurations ymlConfigurations = null;
-		ClassLoader classLoad = BasicUtils.getDefaultClassLoad();
+		ClassLoader classLoad = BasicUtil.getDefaultClassLoad();
 		boolean isFirst = true;
 		for (String config : locations) {
 			InputStream stream = classLoad.getResourceAsStream(config.trim());

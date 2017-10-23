@@ -2,13 +2,14 @@ package com.nymph.bean.impl;
 
 import com.nymph.annotation.Bean;
 import com.nymph.annotation.ConfigurationBean;
-import com.nymph.bean.BeansComponent;
 import com.nymph.bean.BeansHandler;
+import com.nymph.bean.component.BeansComponent;
 import com.nymph.config.Configuration;
 import com.nymph.config.XmlConfigurations;
 import com.nymph.config.YmlConfigurations;
-import com.nymph.utils.BasicUtils;
-import com.nymph.utils.JarUtils;
+import com.nymph.utils.AnnoUtil;
+import com.nymph.utils.BasicUtil;
+import com.nymph.utils.JarUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +76,7 @@ public class ScannerClasspathAndJar {
 	 */
 	private void scanForClassPathPackages(List<String> locations) throws Exception {
 		for (String location : locations) {
-			String classPath = BasicUtils.getSource(location);
+			String classPath = BasicUtil.getSource(location);
 			resolverClasspath(location.replace(".", File.separator), classPath);
 		}
 	}
@@ -87,7 +88,7 @@ public class ScannerClasspathAndJar {
 	private void scanForJarPackages(List<String> locations) throws Exception {
 
 		for (String location : locations) {
-			JarFile jarFile = JarUtils.getJarFile(location);
+			JarFile jarFile = JarUtil.getJarFile(location);
 			if (jarFile == null) continue;
 			String replace = location.replace(".", File.separator);
 			resolveJar(jarFile, replace);
@@ -101,8 +102,7 @@ public class ScannerClasspathAndJar {
 	private void loadComponent(List<Object> components) throws IllegalAccessException {
 		for (Object component : components) {
 			Class<?> aClass = component.getClass();
-			beanHandler(aClass);
-			LOG.info("component: in container [{}]", aClass);
+			beansInitializedHandler(aClass);
 		}
 	}
 	
@@ -117,14 +117,14 @@ public class ScannerClasspathAndJar {
 		for (String value : classLocation) {
 			Class<?> forName = Class.forName(value);
 			interfaceCheck(forName);
-			beanHandler(forName);
-			LOG.info("yml: bean in container [{}]", forName);
+			beansInitializedHandler(forName);
 		}
 	}
 	
 	/**
 	 * 在所有的classpath里递归寻找指定的类
-	 * @param scan		真实的文件路径
+	 * @param scan		递归用,跟locations值相同
+	 * @param locations 真实的文件路径
 	 */
 	private void resolverClasspath(final String scan, String locations) throws Exception {
 		File file = new File(locations);
@@ -146,9 +146,8 @@ public class ScannerClasspathAndJar {
 				Class<?> forName = Class.forName(location);
 				configurationBeansHandler(forName);
 				Annotation[] annos = forName.getAnnotations();
-				if (BasicUtils.existAnno(annos, Bean.class) && !forName.isInterface()) {
-					beanHandler(forName);
-					LOG.info("classpath: bean in container [{}]", forName);
+				if (AnnoUtil.exist(annos, Bean.class) && !forName.isInterface()) {
+					beansInitializedHandler(forName);
 				}
 			}
 		}
@@ -168,10 +167,9 @@ public class ScannerClasspathAndJar {
 				String location = classLocation.replace(".class", "").replace("/", ".");
 				Class<?> forName = Class.forName(location);
 				configurationBeansHandler(forName);
-				Annotation[] annotations = forName.getAnnotations();
-				if (BasicUtils.existAnno(annotations, Bean.class) && !forName.isInterface()) {
-					beanHandler(forName);
-					LOG.info("jarFile: bean in container [{}]", forName);
+				Annotation[] annos = forName.getAnnotations();
+				if (AnnoUtil.exist(annos, Bean.class) && !forName.isInterface()) {
+					beansInitializedHandler(forName);
 				}
 			}
 		}
@@ -182,16 +180,17 @@ public class ScannerClasspathAndJar {
 	 * @param beanClass	bean的类型
 	 * @throws IllegalAccessException
 	 */
-	private void beanHandler(Class<?> beanClass) throws IllegalAccessException {
+	private void beansInitializedHandler(Class<?> beanClass) throws IllegalAccessException {
 		// 存入容器之前的处理
 		handler.filterAlsoSave(beanClass);
-		Object instance = BasicUtils.newInstance(beanClass);
+		Object instance = BasicUtil.newInstance(beanClass);
 		Object bean = beansHandler.handlerBefore(instance);
 		beansComponent.filter(bean);
 		// 存入容器
 		beansContainer.putIfAbsent(beanClass.getName(), bean);
 		// 存入容器之后的处理
 		beansHandler.handlerAfter(bean);
+		LOG.info("bean in container [{}]", beanClass);
 	}
 
 	/**

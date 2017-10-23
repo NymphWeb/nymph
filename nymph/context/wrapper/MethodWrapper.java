@@ -1,43 +1,51 @@
 package com.nymph.context.wrapper;
 
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.NotFoundException;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.LocalVariableAttribute;
-import javassist.bytecode.MethodInfo;
-
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
+
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.bytecode.CodeAttribute;
+import javassist.bytecode.LocalVariableAttribute;
+import javassist.bytecode.MethodInfo;
 
 /**
  * 主要用于获取方法的参数信息
  * @author LiuYang
  * @author LiangTianDong
  */
-public class Methods {
+public class MethodWrapper {
 
+	// 是否是用javassist或去方法参数名
     private static boolean isUseJavassist;
 
+    // javassist获取到的方法参数名
+    private String[] javassistParameterName;
+    
+    // jdk reflect api的Parameter
     private Parameter[] parameters;
 
+    // jdk reflect api的Method
     private Method method;
 
     static {
         try {
-            Method method = Methods.class.getMethod("getParameter", int.class);
+            Method method = MethodWrapper.class.getMethod("getParameter", int.class);
             isUseJavassist = method.getParameters()[0].getName().equals("arg0");
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
 
-    public Methods(Method method) {
+    public MethodWrapper(Method method) {
         this.method = method;
         this.parameters = method.getParameters();
+        if (isUseJavassist) {
+        	initializedParameter();
+        }
     }
 
     public int getParamterLength() {
@@ -59,31 +67,31 @@ public class Methods {
      * @return
      */
     public String getParameterName(int index) {
-        if (!isUseJavassist) {
-            return parameters[index].getName();
+        if (isUseJavassist) {
+            return javassistParameterName[index];
         }
-        try {
-            return getParamNames(index);
-        } catch (NotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return parameters[index].getName();
     }
-
-    /**
-     * 获取方法参数名(非静态方法)
-     * @return
-     */
-    public String getParamNames(int index) throws NotFoundException {
-            ClassPool pool = ClassPool.getDefault();
+    
+    private void initializedParameter() {
+    	try {
+    		ClassPool pool = ClassPool.getDefault();
             CtClass ctClass = pool.get(method.getDeclaringClass().getName());
             CtMethod ctMethod = ctClass.getDeclaredMethod(method.getName());
-            // 使用javassist的反射方法的参数名
-            MethodInfo methodInfo = ctMethod.getMethodInfo();
-            CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-            LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute
-                    .getAttribute(LocalVariableAttribute.tag);
-            return attr == null ? "null" : attr.variableName(index + 1);
+	        // 使用javassist的反射方法的参数名
+	        MethodInfo methodInfo = ctMethod.getMethodInfo();
+	        CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
+	        LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute
+	                .getAttribute(LocalVariableAttribute.tag);
+	        
+	        String[] array = new String[parameters.length];
+	        for (int i = 0; i < parameters.length; i++) {
+	        	array[i] = attr.variableName(i + 1);
+			}
+	        javassistParameterName = array;
+    	} catch (Exception e) {
+    		e.printStackTrace();
+		}
     }
 
     @Override
