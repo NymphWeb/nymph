@@ -63,6 +63,7 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 		Dynamic servlet = context.addServlet("Nymph", CORE_REQUEST_DISPATCHER);
 		servlet.addMapping(config.getUrlPattern());
 		servlet.setAsyncSupported(true);
+		servlet.setLoadOnStartup(1);
 
 		try {
 			loadCustomFilter(context, config.getFilters());

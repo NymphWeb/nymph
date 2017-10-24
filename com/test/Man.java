@@ -5,13 +5,10 @@ import java.util.Properties;
 
 import com.nymph.annotation.Bean;
 import com.nymph.annotation.ConfigurationBean;
-import com.nymph.annotation.Injection;
 
 @ConfigurationBean
 public class Man extends Person{
 	
-	
-	private @Injection TestController controller;
 	
 	private Properties properties;
 	
@@ -22,12 +19,6 @@ public class Man extends Person{
 	}
 	public void setProperties(Properties properties) {
 		this.properties = properties;
-	}
-	public TestController getController() {
-		return controller;
-	}
-	public void setController(TestController controller) {
-		this.controller = controller;
 	}
 	public String getName() {
 		return name;

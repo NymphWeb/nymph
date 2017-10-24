@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import com.nymph.context.wrapper.AsyncWrapper;
+import com.nymph.context.wrapper.ContextWrapper;
 /**
  * 文件下载的相关类
  * @author liu yang 
@@ -13,9 +13,9 @@ import com.nymph.context.wrapper.AsyncWrapper;
  */
 public class Share {
 
-	private final AsyncWrapper asyncReq;
+	private final ContextWrapper asyncReq;
 	
-	public Share(AsyncWrapper asyncReq) {
+	public Share(ContextWrapper asyncReq) {
 		this.asyncReq = asyncReq;
 	}
 	/**

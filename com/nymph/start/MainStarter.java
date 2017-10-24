@@ -161,6 +161,7 @@ public class MainStarter extends WebApplicationContext {
 		Wrapper dispatcher = Tomcat.addServlet(context, "Nymph", CORE_REQUEST_DISPATCHER);
 		dispatcher.setAsyncSupported(true);
 		dispatcher.addMapping(config.getUrlPattern());
+		dispatcher.setLoadOnStartup(1);
 	}
 
 	/**

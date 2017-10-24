@@ -1,6 +1,6 @@
 package com.nymph.context.model;
 
-import com.nymph.context.wrapper.AsyncWrapper;
+import com.nymph.context.wrapper.ContextWrapper;
 
 /**
  * @说明 视图解析器将要解析的对象
@@ -9,7 +9,7 @@ import com.nymph.context.wrapper.AsyncWrapper;
  */
 public class NyView {
 
-	private AsyncWrapper context;
+	private ContextWrapper context;
 	
 	private String dateFormat;
 
@@ -17,7 +17,7 @@ public class NyView {
 	
 	private boolean isJSON;
 
-	public AsyncWrapper getContext() {
+	public ContextWrapper getContext() {
 		return context;
 	}
 	
@@ -33,7 +33,7 @@ public class NyView {
 		return returnResult;
 	}
 
-	public NyView(AsyncWrapper context, Object returnResult, String dateFormat, boolean isJSON) {
+	public NyView(ContextWrapper context, Object returnResult, String dateFormat, boolean isJSON) {
 		this.context = context;
 		this.returnResult = returnResult;
 		this.dateFormat = dateFormat;

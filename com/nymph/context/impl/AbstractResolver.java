@@ -5,8 +5,8 @@ import java.util.List;
 import com.nymph.bean.WebApplicationBeansFactory;
 import com.nymph.config.Configuration;
 import com.nymph.context.Resolver;
-import com.nymph.context.wrapper.AsyncWrapper;
-import com.nymph.exception.ExceptionHandler;
+import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.exception.handle.ExceptionHandler;
 import com.nymph.interceptor.NyInterceptors;
 
 /**
@@ -35,9 +35,9 @@ public abstract class AbstractResolver implements Resolver {
 	/**
 	 *  异步请求对象
 	 */
-	protected AsyncWrapper wrapper;
+	protected ContextWrapper wrapper;
 	
-	public AbstractResolver(AsyncWrapper wrapper) {
+	public AbstractResolver(ContextWrapper wrapper) {
 		this.wrapper = wrapper;
 	}
 

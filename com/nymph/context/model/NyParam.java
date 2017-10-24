@@ -3,7 +3,7 @@ package com.nymph.context.model;
 import java.util.Map;
 
 import com.nymph.bean.impl.HttpBeansContainer.HttpBean;
-import com.nymph.context.wrapper.AsyncWrapper;
+import com.nymph.context.wrapper.ContextWrapper;
 import com.nymph.transfer.Multipart;
 /**
  * @说明 参数解析器将要解析的对象
@@ -14,7 +14,7 @@ public class NyParam {
 
 	private Map<String, String[]> params;
 	
-	private AsyncWrapper context;
+	private ContextWrapper context;
 	
 	private Multipart multipart;
 	
@@ -22,7 +22,7 @@ public class NyParam {
 	
 	public NyParam(	HttpBean httpBean,
 					Map<String, String[]> params,
-					AsyncWrapper context,
+					ContextWrapper context,
 					Multipart multipart) {
 		
 		
@@ -40,7 +40,7 @@ public class NyParam {
 		return httpBean.getPlaceHolder().get(url);
 	}
 
-	public AsyncWrapper getContext() {
+	public ContextWrapper getContext() {
 		return context;
 	}
 

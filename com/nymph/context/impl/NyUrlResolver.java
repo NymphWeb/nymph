@@ -4,8 +4,9 @@ import com.nymph.bean.impl.HttpBeansContainer;
 import com.nymph.bean.impl.HttpBeansContainer.HttpBean;
 import com.nymph.context.UrlResolver;
 import com.nymph.context.model.NyParam;
-import com.nymph.context.wrapper.AsyncWrapper;
+import com.nymph.context.wrapper.ContextWrapper;
 import com.nymph.exception.NoSuchClassException;
+import com.nymph.queue.NyQueue;
 import com.nymph.transfer.Multipart;
 import com.nymph.utils.StrUtil;
 import org.apache.commons.fileupload.FileItem;
@@ -36,9 +37,14 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	 *  文件上传时需要的对象
 	 */
 	private Multipart multipart;
+	/**
+	 *  参数队列
+	 */
+	private NyQueue<NyParam> queue;
 	
-	public NyUrlResolver(AsyncWrapper context) {
+	public NyUrlResolver(ContextWrapper context, NyQueue<NyParam> queue) {
 		super(context);
+		this.queue = queue;
 	}
 
 	@Override
@@ -61,8 +67,7 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 		
 		LOGGER.info("request: [{}]", requestURI);
 		// 将处理好的参数对象放入队列
-		NyParam nyParam = new NyParam(httpBean, params, wrapper, multipart);
-		NyDispatcher.PARAMS_QUEUE.offer(nyParam);
+		queue.put(new NyParam(httpBean, params, wrapper, multipart));
 	}
 	
 	@Override

@@ -11,7 +11,7 @@ import com.nymph.annotation.UrlHolder;
 import com.nymph.start.MainStarter;
 import com.nymph.transfer.Transfer;
 
-@HTTP("/start")
+@HTTP
 public class TestStart {
 
 	private @Injection Man man;
@@ -25,6 +25,12 @@ public class TestStart {
 	@JSON
 	public List<Person> test2(List<Person> person) {
 		return person;
+	}
+	
+	@GET("/test")
+	@JSON
+	public String test3(String param) {
+		return param;
 	}
 
 	public static void main(String[] args) throws Exception {

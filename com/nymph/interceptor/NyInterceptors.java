@@ -1,6 +1,6 @@
 package com.nymph.interceptor;
 
-import com.nymph.context.wrapper.AsyncWrapper;
+import com.nymph.context.wrapper.ContextWrapper;
 /**
  * 标准的拦截器,实现多个时会形成一个拦截器链, 通过实现{@link #getOrder()}来指定
  *     拦截器链的执行顺序, 值越小优先级越高
@@ -14,12 +14,12 @@ public interface NyInterceptors extends Comparable<NyInterceptors> {
 	 * @param asyncContext 异步Context,可以方法执行之前对request和response进行操作
 	 * @return <code>true</code>表示放行, <code>false</code>表示拦截
 	 */
-	boolean preHandle(AsyncWrapper asyncContext);
+	boolean preHandle(ContextWrapper asyncContext);
 	/**
 	 * 被拦截的方法之后会执行此方法
 	 * @param asyncContext 异步Context,可以在方法执行之后对request和response进行操作
 	 */
-	void behindHandle(AsyncWrapper asyncContext);
+	void behindHandle(ContextWrapper asyncContext);
 	/**
 	 * 当实现多个拦截器, 形成拦截器链时, 重写这个方法可以保证拦截器链的执行顺序
 	 * 		   值越小的越会优先执行

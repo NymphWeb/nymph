@@ -29,6 +29,7 @@ import com.nymph.exception.MethodReturnVoidException;
 import com.nymph.exception.PatternNoMatchException;
 import com.nymph.exception.RequestInterceptException;
 import com.nymph.interceptor.NyInterceptors;
+import com.nymph.queue.NyQueue;
 import com.nymph.transfer.Multipart;
 import com.nymph.transfer.Share;
 import com.nymph.transfer.Transfer;
@@ -37,7 +38,7 @@ import com.nymph.utils.BasicUtil;
 import com.nymph.utils.DateUtil;
 
 /**
- * 请求参数解析器的实现	
+ * 请求参数解析器的实现
  * @author LiuYang
  * @author LiangTianDong
  * @date 2017年10月7日下午8:21:40
@@ -56,9 +57,14 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 *  请求中携带的所有参数
 	 */
 	private Map<String, String[]> paramMap;
+	/**
+	 *  视图队列
+	 */
+	private NyQueue<NyView> queue;
 
-	public NyParamResolver(NyParam nyParam) {
+	public NyParamResolver(NyParam nyParam, NyQueue<NyView> queue) {
 		super(nyParam.getContext());
+		this.queue = queue;
 		this.nyParam = nyParam;
 		this.paramMap = nyParam.getParams();
 	}
@@ -81,7 +87,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 		// 已经注入完值的方法参数
 		Object[] args = methodParamsInjection(new MethodWrapper(method));
 		// 代理类的执行返回结果
-		Object result = execute(mapClass, method, args);
+		Object result = intercept(mapClass, method, args);
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("resolver complete args: {}", Arrays.toString(args));
@@ -90,7 +96,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 		// 被代理的目标方法是否想返回json数据
 		boolean isJson = method.isAnnotationPresent(JSON.class);
 		// 将视图解析器需要的参数放入视图解析器队列
-		NyDispatcher.VIEW_QUEUE.offer(new NyView(wrapper, result, format, isJson));
+		queue.put(new NyView(wrapper, result, format, isJson));
 	}
 
 	@Override
@@ -139,7 +145,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 				// 当集合的泛型为 除上面之外的其他java对象时
 				else {
 					existDateFormatAnnotation(parameter);
-					args[i] = resultList(paramType, parameter.getParameterizedType());
+					args[i] = resultList(parameter.getParameterizedType());
 				}
 			} 
 			else if (BasicUtil.isCommonType(paramType)) {
@@ -173,16 +179,8 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 		return args;
 	}
 	
-
-	/**
-	 * 代理目标对象的方法 , 在执行目标方法之前执行前置拦截器链和后置拦截器链
-	 * @param target 		被代理的目标对象
-	 * @param method 		目标对象正在执行的方法
-	 * @param param 		目标对象方法的参数
-	 * @return 				被代理的方法的返回值
-	 * @throws Throwable	HttpBean的异常
-	 */
-	private Object execute(Object target, Method method, Object[] param) throws Throwable {
+	@Override
+	public Object intercept(Object target, Method method, Object[] param) throws Throwable {
 		// 拦截器链前置执行的方法
 		for (NyInterceptors preHandle : intercepts) {
 			if (!preHandle.preHandle(wrapper)) {
@@ -199,7 +197,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 			}
 			return invoke;
 		} catch (Throwable e) {
-			// catch web层的异常
+			// catch  HttpBean的异常
 			Throwable cause = e.getCause();
 			throw cause == null ? e : cause;
 		}
@@ -207,13 +205,12 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	
 	/**
 	 * 根据目标方法的类型，将请求中携带的参数封装成一个集合
-	 * @param clazz
-	 * @param type
-	 * @return
+	 * @param type	HttpBean中的方法参数集合的泛型类型
+	 * @return		
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	private List<?> resultList(Class<?> clazz, Type type) 
+	private List<?> resultList(Type type) 
 			throws InstantiationException, IllegalAccessException {
 		
 		List<Object> objs = new ArrayList<>();
@@ -237,8 +234,8 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 
 	/**
 	 * 根据类型将请求中的参数封装成一个对象并返回
-	 * @param clazz
-	 * @param index
+	 * @param clazz	HttpBean中方法参数的类型
+	 * @param index	用于resultList()方法标识索引位置
 	 * @return
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -251,7 +248,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 		
 		for (Field field : fields) {
 			if (BasicUtil.isCollection(clazz)) {
-				instance = resultList(clazz, field.getGenericType());
+				instance = resultList(field.getGenericType());
 				continue;
 			} 
 			
@@ -306,7 +303,8 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 */
 	private void dateFormatCheck(String format) {
 		if (null == format) {
-			throw new IllegalArgumentException("必须给出时间格式, 请在方法参数前使用@DateFmt注解设置时间格式");
+			throw new IllegalArgumentException(
+				"必须给出时间格式, 请在方法参数前使用@DateFmt注解设置时间格式");
 		}
 	}
 	/**
@@ -315,7 +313,8 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 */
 	private Multipart multipartCheck(Multipart multipart) {
 		if (multipart == null) {
-			throw new IllegalArgumentException("请确认form标签是否设置了multipart/form-data属性");
+			throw new IllegalArgumentException(
+				"请确认form标签是否设置了multipart/form-data属性");
 		}
 		return multipart;
 	}

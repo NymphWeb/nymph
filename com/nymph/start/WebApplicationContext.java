@@ -3,9 +3,9 @@ package com.nymph.start;
 import com.nymph.bean.component.BeansComponent;
 import com.nymph.config.WebConfig;
 import com.nymph.context.impl.AbstractResolver;
-import com.nymph.exception.EnableExceptionHandler;
-import com.nymph.exception.ExceptionHandler;
-import com.nymph.exception.impl.ExceptionHandlerImpl;
+import com.nymph.exception.handle.EnableExceptionHandler;
+import com.nymph.exception.handle.ExceptionHandler;
+import com.nymph.exception.impl.DefaultExceptionHandler;
 import com.nymph.utils.BasicUtil;
 
 import java.util.Collections;
@@ -25,7 +25,7 @@ public abstract class WebApplicationContext extends AbstractResolver {
 	/**
 	 *  核心调度器
 	 */
-	protected static final String CORE_REQUEST_DISPATCHER = "com.nymph.context.impl.NyDispatcher";
+	protected static final String CORE_REQUEST_DISPATCHER = "com.nymph.context.impl.AsyncDispatcher";
 	/**
 	 *  默认的bean处理器
 	 */
@@ -51,7 +51,7 @@ public abstract class WebApplicationContext extends AbstractResolver {
 	protected void initializedComponents() {
 		BeansComponent beansComponent = beansFactory.getBeansComponent();
 		Optional<Object> exceptionComponent = beansComponent.getComponent(EnableExceptionHandler.class);
-		exceptionHandler = (ExceptionHandler) exceptionComponent.orElseGet(ExceptionHandlerImpl :: new);
+		exceptionHandler = (ExceptionHandler) exceptionComponent.orElseGet(DefaultExceptionHandler :: new);
 		// 拦截器链
 		intercepts = beansComponent.getInterceptors();
 
