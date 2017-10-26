@@ -11,9 +11,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
@@ -178,6 +182,25 @@ public final class ContextWrapper {
 			LOGGER.error(null, e);
 		} finally {
 			BasicUtil.closed(channel, inputStream);
+		}
+	}
+	
+	/**
+	 * 发送一个实现了Serializable的对象
+	 * @param serializable
+	 */
+	public void sendObject(Serializable serializable) {
+		ByteArrayOutputStream byteArrayOutputStream = null;
+		ObjectOutputStream objectOutputStream = null;
+		try {
+			byteArrayOutputStream = new ByteArrayOutputStream();
+			objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+			objectOutputStream.writeObject(serializable);
+			response.getOutputStream().write(byteArrayOutputStream.toByteArray());
+		} catch (Exception e) {
+			LOGGER.error(null, e);
+		} finally {
+			BasicUtil.closed(objectOutputStream, byteArrayOutputStream);
 		}
 	}
 }

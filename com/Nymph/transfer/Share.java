@@ -3,6 +3,7 @@ package com.nymph.transfer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 
 import com.nymph.context.wrapper.ContextWrapper;
 /**
@@ -13,10 +14,10 @@ import com.nymph.context.wrapper.ContextWrapper;
  */
 public class Share {
 
-	private final ContextWrapper asyncReq;
+	private final ContextWrapper wrapper;
 	
-	public Share(ContextWrapper asyncReq) {
-		this.asyncReq = asyncReq;
+	public Share(ContextWrapper wrapper) {
+		this.wrapper = wrapper;
 	}
 	/**
 	 * 共享文件, 实际就是文件下载
@@ -24,26 +25,29 @@ public class Share {
 	 * @param filename 		设置文件名 和 后缀名(也就是文件的类型)
 	 */
 	public void shareFile(FileInputStream inputStream, String filename, String suffix) {
-		asyncReq.sendFile(inputStream, filename + suffix);
+		wrapper.sendFile(inputStream, filename + suffix);
 	}
 	/**
-	 * 共享文件, 实际就是文件下载
+	 * 文件下载
 	 * @param inputStream 	文件的流
 	 * @param filename 		设置文件名  注意这里的文件名需要后缀名
 	 */
 	public void shareFile(FileInputStream inputStream, String filename) {
-		asyncReq.sendFile(inputStream, filename);
+		wrapper.sendFile(inputStream, filename);
 	}
 	/**
-	 * 共享文件, 提供给别人下载
+	 * 文件下载
 	 * @param file 想要共享的文件
 	 */
 	public void shareFile(File file) {
 		try {
-			asyncReq.sendFile(new FileInputStream(file), file.getName());
+			wrapper.sendFile(new FileInputStream(file), file.getName());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	public void shareObject(Serializable serializable) {
+		wrapper.sendObject(serializable);
+	}
 }

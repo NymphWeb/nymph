@@ -1,15 +1,13 @@
 package com.nymph.exception.impl;
 
-import com.nymph.utils.PageCSS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nymph.exception.MethodReturnVoidException;
-import com.nymph.exception.RequestInterceptException;
-import com.nymph.exception.handle.ExceptionHandler;
-import com.nymph.exception.PatternNoMatchException;
-import com.nymph.exception.NoSuchClassException;
 import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.exception.NoSuchClassException;
+import com.nymph.exception.PatternNoMatchException;
+import com.nymph.exception.handle.ExceptionHandler;
+import com.nymph.utils.PageCSS;
 
 /**
  * 异常处理的实现
@@ -23,19 +21,13 @@ public class DefaultExceptionHandler implements ExceptionHandler {
 
 	@Override
 	public void handle(ContextWrapper wrapper, Throwable throwable) {
-		if (throwable instanceof RequestInterceptException) {
-			LOGGER.warn("有一个请求被拦截: {}", wrapper.httpRequest().getRequestURL());
-			
-		} else if (throwable instanceof PatternNoMatchException) {
+		if (throwable instanceof PatternNoMatchException) {
 			LOGGER.warn(throwable.getMessage(), throwable);
 			wrapper.sendError(throwable.getMessage());
 			
 		} else if (throwable instanceof NoSuchClassException) {
 			LOGGER.warn(throwable.getMessage(), throwable);
 			wrapper.send404(PageCSS.join(throwable));
-			
-		} else if (throwable instanceof MethodReturnVoidException) {
-			LOGGER.info("当前方法返回值为void 因此直接提交请求");
 			
 		} else {
 			wrapper.sendError(PageCSS.join(throwable));

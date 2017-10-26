@@ -1,16 +1,12 @@
 package com.nymph.context.wrapper;
 
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.bytecode.CodeAttribute;
-import javassist.bytecode.LocalVariableAttribute;
-import javassist.bytecode.MethodInfo;
+import javassist.NotFoundException;
 
 /**
  * 主要用于获取方法的参数信息
@@ -44,12 +40,41 @@ public class MethodWrapper {
         this.method = method;
         this.parameters = method.getParameters();
         if (isUseJavassist) {
-        	initializedParameter();
+        	try {
+        		javassistParameterName = JavassistUtil.getParamName(method);
+			} catch (NotFoundException e) {
+				e.printStackTrace();
+			}
         }
     }
 
     public int getParamterLength() {
         return parameters.length;
+    }
+    
+    /**
+     * 判断方法是否被指定注解标识
+     * @param annotation
+     * @return
+     */
+    public boolean isAnnotationPresent(Class<? extends Annotation> annotation) {
+    	return method.isAnnotationPresent(annotation);
+    }
+    
+    /**
+     * 获取方法上的所有注解
+     * @return
+     */
+    public Annotation[] getAnnotations() {
+    	return method.getAnnotations();
+    }
+    
+    /**
+     * 获取方法的返回值类型
+     * @return
+     */
+    public Class<?> getReturnType() {
+    	return method.getReturnType();
     }
 
     /**
@@ -59,6 +84,17 @@ public class MethodWrapper {
      */
     public Parameter getParameter(int index) {
         return parameters[index];
+    }
+    
+    /**
+     * 调用方法
+     * @param obj
+     * @param args
+     * @return
+     * @throws Throwable
+     */
+    public Object invoke(Object obj, Object... args) throws Throwable {
+    	return method.invoke(obj, args);
     }
 
     /**
@@ -73,27 +109,14 @@ public class MethodWrapper {
         return parameters[index].getName();
     }
     
-    private void initializedParameter() {
-    	try {
-    		ClassPool pool = ClassPool.getDefault();
-            CtClass ctClass = pool.get(method.getDeclaringClass().getName());
-            CtMethod ctMethod = ctClass.getDeclaredMethod(method.getName());
-	        // 使用javassist的反射方法的参数名
-	        MethodInfo methodInfo = ctMethod.getMethodInfo();
-	        CodeAttribute codeAttribute = methodInfo.getCodeAttribute();
-	        LocalVariableAttribute attr = (LocalVariableAttribute) codeAttribute
-	                .getAttribute(LocalVariableAttribute.tag);
-	        
-	        String[] array = new String[parameters.length];
-	        for (int i = 0; i < parameters.length; i++) {
-	        	array[i] = attr.variableName(i + 1);
-			}
-	        javassistParameterName = array;
-    	} catch (Exception e) {
-    		e.printStackTrace();
-		}
+    /**
+     * 获取方法名
+     * @return
+     */
+    public String getMethodName() {
+    	return method.getName();
     }
-
+    
     @Override
     public String toString() {
         return "{" +

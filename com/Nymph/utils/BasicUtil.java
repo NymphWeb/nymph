@@ -61,7 +61,7 @@ public abstract class BasicUtil {
 	}
 
 	/**
-	 * 获取某个资源的路径
+	 * 获取classpath路径下的资源
 	 * @param location
 	 * @return
 	 */
@@ -69,7 +69,7 @@ public abstract class BasicUtil {
 		URL url = getDefaultClassLoad().getResource(location.replace(".", "/"));
 		return url == null ? "" : url.getPath();
 	}
-
+	
 	/**
 	 * 获取默认的类加载器
 	 * @return

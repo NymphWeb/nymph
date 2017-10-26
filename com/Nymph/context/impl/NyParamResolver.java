@@ -3,7 +3,6 @@ package com.nymph.context.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -25,9 +24,7 @@ import com.nymph.context.ParamResolver;
 import com.nymph.context.model.NyParam;
 import com.nymph.context.model.NyView;
 import com.nymph.context.wrapper.MethodWrapper;
-import com.nymph.exception.MethodReturnVoidException;
 import com.nymph.exception.PatternNoMatchException;
-import com.nymph.exception.RequestInterceptException;
 import com.nymph.interceptor.NyInterceptors;
 import com.nymph.queue.NyQueue;
 import com.nymph.transfer.Multipart;
@@ -45,22 +42,21 @@ import com.nymph.utils.DateUtil;
  */
 public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NyParamResolver.class);
-	/**
-	 *  时间的格式字符串(yyyy-MM-dd)
-	 */
+	
+	/** 时间的格式字符串(yyyy-MM-dd) */
 	private String format;
-	/**
-	 *  将要解析的参数
-	 */
+	/** 将要解析的参数 */
 	private NyParam nyParam;
-	/**
-	 *  请求中携带的所有参数
-	 */
+	/** 请求中携带的所有参数 */
 	private Map<String, String[]> paramMap;
-	/**
-	 *  视图队列
-	 */
+	/** Method的包装类 */
+	private MethodWrapper methodWrapper;
+	/** 视图队列 */
 	private NyQueue<NyView> queue;
+	/** 是否停止执行解析方法并提交请求 */
+	private boolean isStop;
+	/** resultSingle()方法的递归次数 */
+	private int cycleNumber;
 
 	public NyParamResolver(NyParam nyParam, NyQueue<NyView> queue) {
 		super(nyParam.getContext());
@@ -71,36 +67,40 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 
 	/**
 	 * 查找url映射的类和方法
-	 * 
 	 * @throws Throwable
 	 */
 	@Override
 	public void resolver() throws Throwable {
-
+		// 获取HttpBean
 		HttpBean httpBean = nyParam.getHttpBean();
 		Object mapClass = beansFactory.getBean(httpBean.getName());
-		Method method = httpBean.getMethod();
-
-		checkRequestType(method); // 请求方式检查
-		methodReturnCheck(method); // 方法返回值检查
-		
+		this.methodWrapper = new MethodWrapper(httpBean.getMethod());
+		// 请求方式检查
+		checkRequestType();
 		// 已经注入完值的方法参数
-		Object[] args = methodParamsInjection(new MethodWrapper(method));
+		Object[] args = methodParamsInjection();
 		// 代理类的执行返回结果
-		Object result = intercept(mapClass, method, args);
+		Object result = intercept(mapClass, args);
+		// 方法返回值检查
+		methodReturnCheck();
+		
+		if (isStop) {
+			wrapper.commit();
+			return;
+		}
 		
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("resolver complete args: {}", Arrays.toString(args));
 		}
 
 		// 被代理的目标方法是否想返回json数据
-		boolean isJson = method.isAnnotationPresent(JSON.class);
+		boolean isJson = methodWrapper.isAnnotationPresent(JSON.class);
 		// 将视图解析器需要的参数放入视图解析器队列
 		queue.put(new NyView(wrapper, result, format, isJson));
 	}
 
 	@Override
-	public Object[] methodParamsInjection(MethodWrapper methodWrapper) throws Throwable {
+	public Object[] methodParamsInjection() throws Throwable {
 		Object[] args = new Object[methodWrapper.getParamterLength()];
 
 		for (int i = 0; i < args.length; i++) {
@@ -180,16 +180,17 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	}
 	
 	@Override
-	public Object intercept(Object target, Method method, Object[] param) throws Throwable {
+	public Object intercept(Object target, Object[] param) throws Throwable {
 		// 拦截器链前置执行的方法
 		for (NyInterceptors preHandle : intercepts) {
 			if (!preHandle.preHandle(wrapper)) {
-				// 如果方法被拦截了将抛出此异常,停止运行下面代码
-				throw new RequestInterceptException();
+				// 如果方法被拦截了就停止运行下面代码
+				LOGGER.info("请求被拦截, url: {}", wrapper.httpRequest().getRequestURL());
+				return isStop = true;
 			}
 		}
 		try {
-			Object invoke = method.invoke(target, param);
+			Object invoke = methodWrapper.invoke(target, param);
 
 			// 拦截器链的后置执行方法
 			for (NyInterceptors beHandle : intercepts) {
@@ -210,8 +211,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	private List<?> resultList(Type type) 
-			throws InstantiationException, IllegalAccessException {
+	private List<?> resultList(Type type) throws Exception {
 		
 		List<Object> objs = new ArrayList<>();
 		ParameterizedType paramType = (ParameterizedType)type;
@@ -240,8 +240,9 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	private Object resultSingle(Class<?> clazz, int index) 
-			throws InstantiationException, IllegalAccessException {
+	private Object resultSingle(Class<?> clazz, int index) throws Exception {
+		cycleControl();
+		
 		Object instance = clazz.newInstance();
 		Field[] fields = clazz.getDeclaredFields();
 		AccessibleObject.setAccessible(fields, true);
@@ -275,12 +276,23 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	}
 	
 	/**
+	 * 循环控制, 防止栈溢出
+	 */
+	private void cycleControl() {
+		cycleNumber++;
+		if (cycleNumber >= 10) {
+			throw new IllegalArgumentException(
+				"当前方法参数绑定时递归次数过多, method: " + methodWrapper.getMethodName());
+		}
+	}
+	
+	/**
 	 * 请求方式检查, 浏览器的请求方式和目标方法要求的请求方式不匹配时抛出异常
 	 * @param method  被检查的方法
 	 */
-	private void checkRequestType(Method method) {
+	private void checkRequestType() {
 		String reqType = wrapper.httpRequest().getMethod();
-		Annotation[] annos = method.getAnnotations();
+		Annotation[] annos = methodWrapper.getAnnotations();
 		Annotation methodType = AnnoUtil.get(annos, Request.class);
 		String type = methodType.annotationType().getSimpleName();
 		if (!type.equals(reqType)) {
@@ -289,12 +301,11 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	}
 
 	/**
-	 * 方法的返回值检查, 为void时会抛出这个异常 并且不对请求作出任何响应, 而是会直接提交请求
+	 * 方法的返回值检查, 为void时会直接提交请求
 	 * @param method
 	 */
-	private void methodReturnCheck(Method method) {
-		if (method.getReturnType() == void.class)
-			throw new MethodReturnVoidException();
+	private void methodReturnCheck() {
+		isStop = methodWrapper.getReturnType() == void.class;
 	}
 
 	/**
