@@ -1,7 +1,18 @@
 package com.nymph.context.impl;
 
-import com.nymph.bean.impl.HttpBeansContainer;
-import com.nymph.bean.impl.HttpBeansContainer.HttpBean;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nymph.bean.web.HttpBeansContainer;
+import com.nymph.bean.web.HttpBeansContainer.HttpBean;
 import com.nymph.context.UrlResolver;
 import com.nymph.context.model.NyParam;
 import com.nymph.context.wrapper.ContextWrapper;
@@ -9,17 +20,6 @@ import com.nymph.exception.NoSuchClassException;
 import com.nymph.queue.NyQueue;
 import com.nymph.transfer.Multipart;
 import com.nymph.utils.StrUtil;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 /**
  * url解析器实现
@@ -27,7 +27,6 @@ import java.util.Map.Entry;
  * @date 2017年10月7日下午8:22:08
  */
 public class NyUrlResolver extends AbstractResolver implements UrlResolver {
-	
 	private static final Logger LOGGER = LoggerFactory.getLogger(NyUrlResolver.class);
 	/**
 	 *  httpbean的容器
@@ -42,30 +41,24 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	 */
 	private NyQueue<NyParam> queue;
 	
-	public NyUrlResolver(ContextWrapper context, NyQueue<NyParam> queue) {
-		super(context);
+	public NyUrlResolver(ContextWrapper wrapper, NyQueue<NyParam> queue) {
+		super(wrapper);
 		this.queue = queue;
 	}
 
 	@Override
 	public void resolver() throws Exception {
-		HttpServletRequest request = wrapper.httpRequest();
 		String contextPath = wrapper.contextPath();
-
-		String requestURI = request.getRequestURI();
-		String urlMapping = StrUtil.delete(requestURI, contextPath);
+		String urlMapping = StrUtil.delete(wrapper.getUri(), contextPath);
 		
 		// 获取url映射的类和方法 
 		HttpBean httpBean = placeHolderHandler(urlMapping);
-		urlMappingResloverCheck(httpBean, requestURI);
+		urlMappingResloverCheck(httpBean);
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("httpBeans: {}", container);
 		}
-
 		// 获取到request中所有的参数
-		Map<String, String[]> params = judgeContentType(request);
-		
-		LOGGER.info("request: [{}]", requestURI);
+		Map<String, String[]> params = judgeContentType();
 		// 将处理好的参数对象放入队列
 		queue.put(new NyParam(httpBean, params, wrapper, multipart));
 	}
@@ -105,11 +98,11 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	}
 	
 	@Override
-	public Map<String, String[]> multipartHandler(HttpServletRequest request) throws Exception {
+	public Map<String, String[]> multipartHandler() throws Exception {
 		multipart = new Multipart();
 		DiskFileItemFactory disk = new DiskFileItemFactory();
 		ServletFileUpload servletFileUpload = new ServletFileUpload(disk);
-		List<FileItem> items = servletFileUpload.parseRequest(request);
+		List<FileItem> items = servletFileUpload.parseRequest(wrapper.httpRequest());
 
 		Map<String, String[]> params = new HashMap<>();
 
@@ -142,11 +135,11 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	 * @return				表示请求中所有参数的map
 	 * @throws Exception	multipartHandler方法抛出的异常
 	 */
-	private Map<String, String[]> judgeContentType(HttpServletRequest request) throws Exception {
+	private Map<String, String[]> judgeContentType() throws Exception {
 		if (wrapper.contentType().startsWith("multipart/form-data")) {
-			return multipartHandler(request);
+			return multipartHandler();
 		} else {
-			return request.getParameterMap();
+			return wrapper.getParameters();
 		}
 	}
 	
@@ -155,9 +148,9 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	 * @param mapper	匹配到的mapper对象
 	 * @param url		浏览器请求的url
 	 */
-	private void urlMappingResloverCheck(HttpBean mapper, String url) {
+	private void urlMappingResloverCheck(HttpBean mapper) {
 		if (mapper == null) {
-			throw new NoSuchClassException(url);
+			throw new NoSuchClassException(wrapper.getUri());
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package com.nymph.bean.impl;
+package com.nymph.bean.core;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nymph.annotation.Injection;
-import com.nymph.bean.component.BeansProxyHandler;
+import com.nymph.bean.BeansProxy;
 
 /**
  * 注入bean中被@Injection注解标识的字段或方法	
@@ -25,7 +25,7 @@ public class PropertyValueInjection {
 	
 	private Map<String, Boolean> signs;
 	
-	private BeansProxyHandler proxyHandler;
+	private BeansProxy proxyHandler;
 
 	public void injection() {
 		try {
@@ -44,7 +44,7 @@ public class PropertyValueInjection {
 		this.signs = new HashMap<>(beanContainer.size());
 	}
 	
-	public void setBeansProxyHandler(BeansProxyHandler proxyHandler) {
+	public void setBeansProxyHandler(BeansProxy proxyHandler) {
 		this.proxyHandler = proxyHandler;
 	}
 	

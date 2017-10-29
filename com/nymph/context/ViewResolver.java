@@ -7,7 +7,7 @@ package com.nymph.context;
  */
 public interface ViewResolver extends Resolver{
 	/**
-	 * 响应前的最后一步, 判断结果 是转发到另一个servlet还是重定向 或者是直接响应json, 并且进行相应处理
+	 * 判断结果是转发到请求还是重定向 或者是直接响应json
 	 * @param result		http映射bean的方法返回值, 一般为字符串, 返回json时可能是个普通对
 	 * 						象或者集合
 	 * 

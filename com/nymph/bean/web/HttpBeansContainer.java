@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.nymph.bean.impl;
+package com.nymph.bean.web;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -23,7 +23,7 @@ import com.nymph.utils.AnnoUtil;
  */
 public class HttpBeansContainer {
 
-	private final Map<String, HttpBean> httpMap = new HashMap<>(256);
+	private final Map<String, HttpBean> httpMap = new HashMap<>();
 
 	/**
 	 * 对拥有@HTTP注解的bean进行处理主要是将@HTTP注解的value和@Request系列注解(@GET这种)

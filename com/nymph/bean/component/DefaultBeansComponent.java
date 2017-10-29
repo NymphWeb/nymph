@@ -1,4 +1,4 @@
-package com.nymph.bean.impl;
+package com.nymph.bean.component;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.nymph.annotation.Components;
-import com.nymph.bean.component.BeansComponent;
+import com.nymph.bean.BeansComponent;
 import com.nymph.interceptor.EnableInterceptor;
 import com.nymph.interceptor.NyInterceptors;
 import com.nymph.utils.AnnoUtil;
@@ -24,7 +24,6 @@ public class DefaultBeansComponent implements BeansComponent {
 	 *  存放组件的容器
 	 */
 	private final Map<Class<?>, Object> components = new HashMap<>(16);
-
 	/**
 	 *  过滤器链
 	 */

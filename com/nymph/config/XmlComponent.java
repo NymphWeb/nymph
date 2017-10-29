@@ -9,27 +9,11 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.dom4j.Attribute;
-import org.dom4j.Document;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 
 import com.nymph.utils.BasicUtil;
 
 public class XmlComponent {
-	
-	@SuppressWarnings("unchecked")
-	public static List<Object> readXml(String location) {
-		try {
-			SAXReader sax = new SAXReader();
-			Document document = sax.read(
-				BasicUtil.getDefaultClassLoad().getResourceAsStream(location));
-			Element element = document.getRootElement();
-			return component(element.elements("component"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 	
 	/**
 	 * 解析所有的component元素
@@ -38,7 +22,7 @@ public class XmlComponent {
 	 * @throws Exception
 	 */
 	@SuppressWarnings("unchecked")
-	public static List<Object> component(List<Element> elements) throws Exception {
+	public List<Object> component(List<Element> elements) throws Exception {
 		if (elements == null || elements.size() == 0)
 			return null;
 		
@@ -168,7 +152,7 @@ public class XmlComponent {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<Object> handlerTask(Map<String, MTask> mTask, Map<String, CTask> cTask, 
+	public List<Object> handlerTask(Map<String, MTask> mTask, Map<String, CTask> cTask, 
 			Map<String, STask> sTask, Map<String, Object> component) throws Exception {
 		
 		for (Entry<String, MTask> task : mTask.entrySet()) {

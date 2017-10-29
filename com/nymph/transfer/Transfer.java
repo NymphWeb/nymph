@@ -11,10 +11,7 @@ import com.nymph.context.wrapper.ContextWrapper;
  * @author lianTianDong
  */
 public class Transfer {
-	
-	/**
-	 * 异步请求对象
-	 */
+	/** 异步请求对象*/
 	private final ContextWrapper async;
 	
 	public Transfer(ContextWrapper async) {

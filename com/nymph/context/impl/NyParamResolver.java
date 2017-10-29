@@ -19,7 +19,7 @@ import com.nymph.annotation.DateFmt;
 import com.nymph.annotation.JSON;
 import com.nymph.annotation.Request;
 import com.nymph.annotation.UrlHolder;
-import com.nymph.bean.impl.HttpBeansContainer.HttpBean;
+import com.nymph.bean.web.HttpBeansContainer.HttpBean;
 import com.nymph.context.ParamResolver;
 import com.nymph.context.model.NyParam;
 import com.nymph.context.model.NyView;
@@ -42,20 +42,33 @@ import com.nymph.utils.DateUtil;
  */
 public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NyParamResolver.class);
-	
-	/** 时间的格式字符串(yyyy-MM-dd) */
+	/** 
+	 * 时间的格式字符串(yyyy-MM-dd)
+	 */
 	private String format;
-	/** 将要解析的参数 */
+	/** 
+	 * 将要解析的参数 
+	 */
 	private NyParam nyParam;
-	/** 请求中携带的所有参数 */
+	/** 
+	 * 请求中携带的所有参数 
+	 */
 	private Map<String, String[]> paramMap;
-	/** Method的包装类 */
+	/** 
+	 * Method的包装类 
+	 */
 	private MethodWrapper methodWrapper;
-	/** 视图队列 */
+	/** 
+	 * 视图队列 
+	 */
 	private NyQueue<NyView> queue;
-	/** 是否停止执行解析方法并提交请求 */
+	/** 
+	 * 是否停止执行解析方法并提交请求
+	 */
 	private boolean isStop;
-	/** resultSingle()方法的递归次数 */
+	/** 
+	 * resultSingle()方法的递归次数
+	 */
 	private int cycleNumber;
 
 	public NyParamResolver(NyParam nyParam, NyQueue<NyView> queue) {
@@ -88,9 +101,9 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 			wrapper.commit();
 			return;
 		}
-		
 		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("resolver complete args: {}", Arrays.toString(args));
+			LOGGER.debug("args: {}", Arrays.toString(args));
+			LOGGER.debug("param name: {}", methodWrapper);
 		}
 
 		// 被代理的目标方法是否想返回json数据
@@ -134,10 +147,8 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 					string = nyParam.getPlaceHolder(urlVar.value());
 				}
 				args[i] = BasicUtil.convert(paramType, string);
-
 			} 
-			else if (BasicUtil.isCollection(paramType)) {
-				 // 当参数为集合时
+			else if (BasicUtil.isCollection(paramType)) { // 当参数为集合时
 				// 当集合的泛型是primitive时 如 int long 这里也把String当做原生类型
 				if (BasicUtil.isCommonCollection(parameter.getParameterizedType())) {
 					args[i] = BasicUtil.convertList(paramType, param);
@@ -146,34 +157,27 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 				else {
 					existDateFormatAnnotation(parameter);
 					args[i] = resultList(parameter.getParameterizedType());
+					cycleControl();
 				}
 			} 
-			else if (BasicUtil.isCommonType(paramType)) {
-				// 当参数为原生的类型时(基本类型)
+			else if (BasicUtil.isCommonType(paramType)) { // 当参数为基本类型时
 				// param数组为空时结束此次循环
 				if (BasicUtil.notNullAndLenNotZero(param)) 
 					continue;
 				args[i] = BasicUtil.convert(paramType, param[0]);
-
 			} 
-			else if (paramType == Date.class) {
-				// 当参数为时间类型时
+			else if (paramType == Date.class) { // 当参数为时间类型时
 				// param数组为空时结束此次循环
-				if (BasicUtil.notNullAndLenNotZero(param))
+				if (BasicUtil.notNullAndLenNotZero(param)) 
 					continue;
 				existDateFormatAnnotation(parameter);
 				dateFormatCheck(format);
 				args[i] = DateUtil.resolve(param[0], format);
-
 			} 
 			else { // 这里一般表示用户自定义的java对象
 				existDateFormatAnnotation(parameter);
 				args[i] = resultSingle(paramType, 0);
-			}
-			
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("bind param: {}", args[i]);
-				LOGGER.debug("method paramsType: {}", paramType);
+				cycleControl();
 			}
 		}
 		return args;
@@ -191,7 +195,6 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 		}
 		try {
 			Object invoke = methodWrapper.invoke(target, param);
-
 			// 拦截器链的后置执行方法
 			for (NyInterceptors beHandle : intercepts) {
 				beHandle.behindHandle(wrapper);
@@ -241,7 +244,10 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 * @throws IllegalAccessException
 	 */
 	private Object resultSingle(Class<?> clazz, int index) throws Exception {
-		cycleControl();
+		if (cycleNumber >= 10) {
+			cycleNumber++;
+			return null;
+		}
 		
 		Object instance = clazz.newInstance();
 		Field[] fields = clazz.getDeclaredFields();
@@ -279,7 +285,6 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	 * 循环控制, 防止栈溢出
 	 */
 	private void cycleControl() {
-		cycleNumber++;
 		if (cycleNumber >= 10) {
 			throw new IllegalArgumentException(
 				"当前方法参数绑定时递归次数过多, method: " + methodWrapper.getMethodName());

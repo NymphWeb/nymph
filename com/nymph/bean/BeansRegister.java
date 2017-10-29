@@ -1,4 +1,4 @@
-package com.nymph.bean.component;
+package com.nymph.bean;
 
 import java.util.Map;
 

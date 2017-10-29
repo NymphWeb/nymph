@@ -2,7 +2,7 @@ package com.nymph.context.impl;
 
 import java.util.List;
 
-import com.nymph.bean.WebApplicationBeansFactory;
+import com.nymph.bean.web.WebApplicationBeansFactory;
 import com.nymph.config.Configuration;
 import com.nymph.context.Resolver;
 import com.nymph.context.wrapper.ContextWrapper;

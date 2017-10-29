@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.Serializable;
 
 import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.utils.BasicUtil;
 /**
  * 文件下载的相关类
  * @author liu yang 
@@ -40,13 +41,21 @@ public class Share {
 	 * @param file 想要共享的文件
 	 */
 	public void shareFile(File file) {
+		FileInputStream fileInputStream = null;
 		try {
-			wrapper.sendFile(new FileInputStream(file), file.getName());
+			fileInputStream = new FileInputStream(file);
+			wrapper.sendFile(fileInputStream, file.getName());
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} finally {
+			BasicUtil.closed(fileInputStream);
 		}
 	}
 	
+	/**
+	 * 发送一个序列化的对象
+	 * @param serializable
+	 */
 	public void shareObject(Serializable serializable) {
 		wrapper.sendObject(serializable);
 	}

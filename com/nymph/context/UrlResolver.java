@@ -1,10 +1,8 @@
 package com.nymph.context;
 
-import com.nymph.bean.impl.HttpBeansContainer.HttpBean;
-
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import com.nymph.bean.web.HttpBeansContainer.HttpBean;
 
 /**
  * @comment url解析器
@@ -15,11 +13,10 @@ public interface UrlResolver extends Resolver{
 	
 	/**
 	 * 当Content-Type为上传文件的类型时进行的处理
-	 * @param request		当前的请求对象
 	 * @return				请求中所有参数的map
 	 * @throws Exception	FileUploadExcaption异常, 和UnsupportedEncodingException编码异常
 	 */
-	Map<String, String[]> multipartHandler(HttpServletRequest request) throws Exception;
+	Map<String, String[]> multipartHandler() throws Exception;
 	/**
 	 * 寻找和指定url匹配的类映射信息, 这里需要考虑是否使用了@PlaceHolder占位符注解, 如果没有则直接从HttpBeanContainer
 	 *     中获取, 否则需要遍历整个容器来寻找是否有对应的HttpBean, 并且需要获取到@PlaceHolder的value方法对应的值

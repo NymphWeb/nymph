@@ -1,4 +1,4 @@
-package com.nymph.bean.impl;
+package com.nymph.bean.core;
 
 import com.nymph.bean.BeansHandler;
 

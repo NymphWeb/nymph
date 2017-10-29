@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 文件上传的相关操作
+ * 关于文件上传的类
  * @author NYMPH
  * @date 2017年10月7日下午8:27:58
  */
@@ -48,7 +48,6 @@ public final class Multipart {
 	public List<String> fields() {
 		return fileInfo.keySet().stream().collect(Collectors.toList());
 	}
-	
 	/**
 	 * 获取所有表示文件的FileInf
 	 * @return

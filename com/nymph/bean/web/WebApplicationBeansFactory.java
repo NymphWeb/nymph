@@ -1,8 +1,9 @@
-package com.nymph.bean;
+package com.nymph.bean.web;
 
-import com.nymph.bean.component.BeansComponent;
-import com.nymph.bean.component.BeansProxyHandler;
-import com.nymph.bean.impl.HttpBeansContainer;
+import com.nymph.bean.BeansComponent;
+import com.nymph.bean.BeansFactory;
+import com.nymph.bean.BeansHandler;
+import com.nymph.bean.BeansProxy;
 import com.nymph.config.Configuration;
 
 /**
@@ -55,11 +56,11 @@ public interface WebApplicationBeansFactory extends BeansFactory {
 	 * 获取bean的代理处理器
 	 * @return
 	 */
-	BeansProxyHandler getBeansProxyHandler();
+	BeansProxy getBeansProxyHandler();
 	/**
 	 * 修改bean的代理处理器
 	 * @param proxyHandler
 	 */
-	void setBeansProxyHandler(BeansProxyHandler proxyHandler);
+	void setBeansProxyHandler(BeansProxy proxyHandler);
 
 }

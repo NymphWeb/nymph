@@ -13,18 +13,18 @@ import com.nymph.json.Jsons;
  */
 public class NyViewResolver extends AbstractResolver implements ViewResolver {
 	private static final Logger LOGGER = LoggerFactory.getLogger(NyViewResolver.class);
-	/**
-	 *  url后缀
+	/** 
+	 * HttpBean的返回值后缀 
 	 */
 	private static final String PATH_SUFFIX = configuration.getWebConfig().getSuffix();
-	/**
-	 *  url前缀
+	/** 
+	 * HttpBean的返回值前缀
 	 */
 	private static final String PATH_PREFIX = configuration.getWebConfig().getPrefix();
-	/**
-	 *  将会解析的对象
+	/** 
+	 * 视图参数 
 	 */
-	protected NyView nyView;
+	private NyView nyView;
 	/**
 	 *  表示web层方法返回结果的类型 分下面四种
 	 */
@@ -80,8 +80,9 @@ public class NyViewResolver extends AbstractResolver implements ViewResolver {
 		default:
 			LOGGER.error("未知的转发方式");
 		}
-		if (LOGGER.isDebugEnabled()) 
-			LOGGER.debug("ViewResolver handler result: typeCode[{}] - {}", typeCode, result);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("ViewResolver result: typeCode[{}] - {}", typeCode, result);
+		}
 		wrapper.commit();
 	}
 	
@@ -113,7 +114,8 @@ public class NyViewResolver extends AbstractResolver implements ViewResolver {
 			
 		} else {
 			typeCode = REQUEST_FORWRAD;
-			url = PATH_PREFIX + (url.startsWith("/") ? url : "/" + url) + PATH_SUFFIX;
+			url = url.startsWith("/") ? url : "/" + url;
+			url = PATH_PREFIX + url + PATH_SUFFIX;
 		}
 		return url;
 	}

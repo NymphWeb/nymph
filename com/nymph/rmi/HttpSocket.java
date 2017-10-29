@@ -1,4 +1,4 @@
-package com.nymph.context.other;
+package com.nymph.rmi;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -10,12 +10,13 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
- * 简单的对服务器发出请求的工具
+ * 发出Http请求的工具, 可以远程获取Serializable对象
  * @author LiuYang
  * @author LiangTianDong
  * @date 2017年10月19日下午9:18:10
  */
-public class RPC4j {
+public class HttpSocket {
+	private static final String PARAM_POSITION = "\n\r\n";
 	
 	// 套接字管道
 	private SocketChannel socketChannel;
@@ -32,7 +33,7 @@ public class RPC4j {
 	// 主机名 或者叫 ip
 	private String host;
 	
-	public RPC4j(String host, int port, String charset, int bufferSize) {
+	public HttpSocket(String host, int port, String charset, int bufferSize) {
 		try {
 			this.port = port;
 			this.host = host;
@@ -44,7 +45,7 @@ public class RPC4j {
 		}
 	}
 	
-	public RPC4j(String host, int port) {
+	public HttpSocket(String host, int port) {
 		try {
 			this.port = port;
 			this.host = host;
@@ -96,15 +97,34 @@ public class RPC4j {
 		return getResponse(bs);
 	}
 	
-	public Object getObject(String path) throws IOException, ClassNotFoundException {
-		byte[] bs = doAccess(path, "GET", null);
+	/**
+	 * 获取服务端响应的序列化对象
+	 * @param path		请求的路径
+	 * @param method 	请求方式
+	 * @return			获取的对象
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public Object getObject(String path, String method) {
+		byte[] bs = doAccess(path, method.toUpperCase(), null);
+		// 截取响应头中的字节信息
 		for (int i = 0; i < bs.length; i++) {
 			if (i > 0 && bs[i - 1] == '\n' && bs[i] == '\r' && bs[i + 1] == '\n') {
 				byte[] bytes = new byte[bs.length - (i + 2)];
 				System.arraycopy(bs, i + 2, bytes, 0, bytes.length);
-				try(ObjectInputStream inputStream = 
-					new ObjectInputStream(new ByteArrayInputStream(bytes));) {
+				
+				ObjectInputStream inputStream = null;
+				try {
+					inputStream = new ObjectInputStream(new ByteArrayInputStream(bytes));
 					return inputStream.readObject();
+				} catch (Exception e) {
+					e.printStackTrace();
+				} finally {
+					if (inputStream != null) {
+						try {
+							inputStream.close();
+						} catch (IOException e) {}
+					}
 				}
 			}
 		}
@@ -128,8 +148,8 @@ public class RPC4j {
 	 * @return
 	 */
 	private String getResponse(byte[] bytes) {
-		String result = new String(bytes);
-		return result.substring(result.indexOf("\n\r\n") + 3);
+		String result = new String(bytes, charset);
+		return result.substring(result.indexOf(PARAM_POSITION) + 3);
 	}
 	
 	/**
@@ -174,7 +194,6 @@ public class RPC4j {
 		return null;
 	}
 	
-	
 	/**
 	 * 初始化请求头信息
 	 */
@@ -182,17 +201,11 @@ public class RPC4j {
 		return new StringBuilder().append(method + " " + path)
 			.append(" HTTP/1.1\n")
 			.append("Host:"+ host +":"+ port +"\n")
-			.append("Content-Type: application/x-www-form-urlencoded;charset=UTF-8\n")
-			.append("User-Agent: NymphRPC/1.0\n")
+			.append("User-Agent: ly/1.0\n")
 			.append("Accept: */*\n")
 			.append("Content-Length: "+ length +"\n")
 			.append("Accept-Encoding: gzip, deflate\n")
 			.append("Connection: keep-alive\n\r\n")
 			.append(param).toString();
-	}
-	
-	public static void main(String[] args) throws ClassNotFoundException, IOException {
-		RPC4j rpc4j = new RPC4j("127.0.0.1", 9900);
-		System.out.println(rpc4j.getObject("/class"));
 	}
 }

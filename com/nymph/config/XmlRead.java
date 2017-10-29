@@ -8,39 +8,36 @@ import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 
 import com.nymph.utils.BasicUtil;
-
-public class XmlConfUtil {
+/**
+ * xml配置文件的读取
+ * @author LiuYang, LiangTianDong
+ * @date 2017年10月29日下午3:59:42
+ */
+public final class XmlRead {
+	// dom4j api
+	private static final SAXReader SAX = new SAXReader();
+	// component解析
+	private static final XmlComponent COMPONENTS = new XmlComponent();
 	
-	public static XmlConfigurations readXml(String location) {
+	/**
+	 * 读取多个xml配置文件
+	 * @param locations
+	 * @return
+	 */
+	public static Configuration readXml(String... locations) {
 		try {
-			SAXReader sax = new SAXReader();
-			Document document = sax.read(
-				BasicUtil.getDefaultClassLoad().getResourceAsStream(location));
-			Element element = document.getRootElement();
-			return read(element);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	public static XmlConfigurations readXmls(String... locations) {
-		try {
-			SAXReader sax = new SAXReader();
-			boolean isFirst = true;
-			XmlConfigurations configurations = null;
+			Configuration configuration = null;
 			for (String location : locations) {
-				Document document = sax.read(
-					BasicUtil.getDefaultClassLoad().getResourceAsStream(location));
+				Document document = SAX.read(
+					BasicUtil.getDefaultClassLoad().getResourceAsStream(location.trim()));
 				Element element = document.getRootElement();
-				if (isFirst) {
-					configurations = read(element);
+				if (configuration == null) {
+					configuration = read(element);
 				} else {
-					configurations.addConfiguration(read(element));
+					configuration.addConfiguration(read(element));
 				}
-				isFirst = false;
 			}
-			return configurations;
+			return configuration;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -48,9 +45,9 @@ public class XmlConfUtil {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static XmlConfigurations read(Element element) throws Exception {
+	public static Configuration read(Element element) throws Exception {
 		
-		XmlConfigurations configuration = new XmlConfigurations();
+		Configuration configuration = new Configuration();
 		
 		// 扫描bean的路径
 		Element scannerNode = element.element("scanners");
@@ -63,7 +60,8 @@ public class XmlConfUtil {
 		}
 		
 		// 组件
-		List<Object> component = XmlComponent.component(element.elements("component"));
+		List<Element> components = element.elements("component");
+		List<Object> component = COMPONENTS.component(components);
 		configuration.setComponent(component);
 		
 		// bean处理器
@@ -132,6 +130,11 @@ public class XmlConfUtil {
 		return configuration;
 	}
 	
+	/**
+	 * 获取Element属性的值
+	 * @param element
+	 * @return
+	 */
 	private static String attrValue(Element element) {
 		if (element == null)
 			return null;

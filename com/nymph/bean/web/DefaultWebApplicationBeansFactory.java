@@ -1,11 +1,11 @@
-package com.nymph.bean.impl;
+package com.nymph.bean.web;
 
 import com.nymph.bean.*;
-import com.nymph.bean.component.BeansComponent;
-import com.nymph.bean.component.BeansProxyHandler;
-import com.nymph.bean.component.BeansRegister;
+import com.nymph.bean.component.DefaultBeansComponent;
 import com.nymph.bean.component.EnableBeanProxyHandler;
 import com.nymph.bean.component.EnableBeanRegister;
+import com.nymph.bean.core.PropertyValueInjection;
+import com.nymph.bean.core.ScannerClasspathAndJar;
 import com.nymph.config.Configuration;
 
 import java.util.Collection;
@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author LiangTianDong
  * @date 2017年10月3日下午2:26:28
  */
-public class DefaultBeansFactory implements WebApplicationBeansFactory {
+public class DefaultWebApplicationBeansFactory implements WebApplicationBeansFactory {
 	/**
 	 *  存放bean实例的容器, 以类名为键
 	 */
@@ -47,13 +47,13 @@ public class DefaultBeansFactory implements WebApplicationBeansFactory {
 	/**
 	 *  bean的动态代理处理器
 	 */
-	private BeansProxyHandler proxyHandler;
+	private BeansProxy proxyHandler;
 	/**
 	 *  配置文件类
 	 */
 	private Configuration Configuration;
 
-	public DefaultBeansFactory() {
+	public DefaultWebApplicationBeansFactory() {
 		httpContainer = new HttpBeansContainer();
 		beansComponent = new DefaultBeansComponent();
 	}
@@ -67,7 +67,7 @@ public class DefaultBeansFactory implements WebApplicationBeansFactory {
 	private void initBeansExpandComponents() {
 		// bean的动态代理处理器
 		Optional<Object> proxy = beansComponent.getComponent(EnableBeanProxyHandler.class);
-		setBeansProxyHandler((BeansProxyHandler) proxy.orElse(null));
+		setBeansProxyHandler((BeansProxy) proxy.orElse(null));
 		autoInjectBeans.setBeansProxyHandler(proxyHandler);
 
 		Optional<Object> register = beansComponent.getComponent(EnableBeanRegister.class);
@@ -148,12 +148,12 @@ public class DefaultBeansFactory implements WebApplicationBeansFactory {
 	}
 
 	@Override
-	public BeansProxyHandler getBeansProxyHandler() {
+	public BeansProxy getBeansProxyHandler() {
 		return proxyHandler;
 	}
 
 	@Override
-	public void setBeansProxyHandler(BeansProxyHandler proxyHandler) {
+	public void setBeansProxyHandler(BeansProxy proxyHandler) {
 		this.proxyHandler = proxyHandler;
 	}
 	

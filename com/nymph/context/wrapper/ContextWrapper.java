@@ -20,6 +20,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.util.Map;
 
 /**
  * Servlet3.0之后的异步请求上下文的一个包装类
@@ -53,7 +54,6 @@ public final class ContextWrapper {
 	 */
 	private static final String CONTENT_TYPE_STREAM = "application/octet-stream;charset=UTF-8";
 	
-
 	public ContextWrapper(AsyncContext context) {
 		this.context = context;
 		this.request = (HttpServletRequest) context.getRequest();
@@ -68,15 +68,7 @@ public final class ContextWrapper {
 	public AsyncContext getAsyncContext() {
 		return context;
 	}
-
-	public String contentType() {
-		return StrUtil.emptyString(request.getContentType());
-	}
-
-	public String contextPath() {
-		return StrUtil.emptyString(request.getContextPath());
-	}
-
+	
 	public HttpServletResponse httpResponse() {
 		return response;
 	}
@@ -86,13 +78,44 @@ public final class ContextWrapper {
 	}
 	
 	public void commit() {
-		try {
-			context.complete();
-		} catch (Throwable e) {
-			LOGGER.warn("asyncRequest 可能重复提交了");
-		}
+		context.complete();
 	}
-
+	/**
+	 * 获取当前请求的所有参数
+	 * @return
+	 */
+	public Map<String, String[]> getParameters() {
+		return request.getParameterMap();
+	}
+	/**
+	 * 获取当前请求的contentType
+	 * @return
+	 */
+	public String contentType() {
+		return StrUtil.emptyString(request.getContentType());
+	}
+	/**
+	 * 获取当前请求的contextPath
+	 * @return
+	 */
+	public String contextPath() {
+		return StrUtil.emptyString(request.getContextPath());
+	}
+	/**
+	 * 获取当前请求的Uri
+	 * @return
+	 */
+	public String getUri() {
+		return StrUtil.emptyString(request.getRequestURI());
+	}
+	/**
+	 * 获取当前请求的Url
+	 * @return
+	 */
+	public String getUrl() {
+		StringBuffer url = request.getRequestURL();
+		return url == null ? "" : url.toString();
+	}
 	/**
 	 * 以相对路径重定向
 	 * @param location
@@ -104,7 +127,6 @@ public final class ContextWrapper {
 			LOGGER.error(null, e);
 		}
 	}
-
 	/**
 	 * 以绝对路径重定向(如"http://192.168.0.0/demo"这种格式)
 	 * @param location
@@ -155,6 +177,11 @@ public final class ContextWrapper {
 		write(info, CONTENT_TYPE_TEXT);
 	}
 
+	/**
+	 * 往页面写入数据
+	 * @param info
+	 * @param type
+	 */
 	private void write(Object info, String type) {
 		try {
 			response.setContentType(type);

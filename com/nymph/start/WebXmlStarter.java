@@ -1,15 +1,19 @@
 package com.nymph.start;
 
-import com.nymph.bean.BeansHandler;
-import com.nymph.config.XmlConfUtil;
-import com.nymph.config.YmlConfUtil;
-import com.nymph.utils.BasicUtil;
-
-import javax.servlet.*;
-import javax.servlet.ServletRegistration.Dynamic;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+import javax.servlet.ServletRegistration;
+import javax.servlet.ServletRegistration.Dynamic;
+
+import com.nymph.bean.BeansHandler;
+import com.nymph.config.ConfRead;
+import com.nymph.utils.BasicUtil;
 
 /**
  * webxml的启动方式	
@@ -103,18 +107,9 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 	 */
 	private void loadYml(String location) {
 		if (location.indexOf(",") < 0) {
-			if (location.endsWith(".xml")) {
-				configuration = XmlConfUtil.readXml(location);
-			} else {
-				configuration = YmlConfUtil.readYml(location);
-			}
+			configuration = ConfRead.readConf(location);
 		} else {
-			String[] value = location.split(",");
-			if (value[0].endsWith(".xml")) {
-				configuration = XmlConfUtil.readXmls(value);
-			} else {
-				configuration = YmlConfUtil.readYmls(value);
-			}
+			configuration = ConfRead.readConf(location.split(","));
 		}
 	}
 

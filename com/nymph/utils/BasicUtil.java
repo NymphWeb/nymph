@@ -204,10 +204,8 @@ public abstract class BasicUtil {
 	public static boolean isCommonCollection(Type type) {
 		if (type == null)
 			return false;
-		Class<?> clazz = (Class<?>) (((ParameterizedType)type).getActualTypeArguments()[0]);
-		if (Number.class.isAssignableFrom(clazz) || 
-			String.class.isAssignableFrom(clazz)) {
-			
+		Class<?> clazz = (Class<?>) ((ParameterizedType)type).getActualTypeArguments()[0];
+		if (Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)) {
 			return true;
 		}
 		return false;

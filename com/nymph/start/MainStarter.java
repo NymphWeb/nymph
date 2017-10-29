@@ -1,22 +1,5 @@
 package com.nymph.start;
 
-import com.nymph.annotation.ConfPosition;
-import com.nymph.bean.BeansHandler;
-import com.nymph.bean.impl.DefaultBeansFactory;
-import com.nymph.config.XmlConfUtil;
-import com.nymph.config.YmlConfUtil;
-import com.nymph.utils.BasicUtil;
-import org.apache.catalina.Context;
-import org.apache.catalina.Wrapper;
-import org.apache.catalina.core.StandardContext;
-import org.apache.catalina.startup.ContextConfig;
-import org.apache.catalina.startup.Tomcat;
-import org.apache.catalina.startup.Tomcat.FixContextListener;
-import org.apache.tomcat.util.descriptor.web.FilterDef;
-import org.apache.tomcat.util.descriptor.web.FilterMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +9,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.catalina.Context;
+import org.apache.catalina.Wrapper;
+import org.apache.catalina.core.StandardContext;
+import org.apache.catalina.startup.ContextConfig;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.catalina.startup.Tomcat.FixContextListener;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
+
+import com.nymph.annotation.ConfPosition;
+import com.nymph.bean.BeansHandler;
+import com.nymph.bean.web.DefaultWebApplicationBeansFactory;
+import com.nymph.config.ConfRead;
+import com.nymph.utils.BasicUtil;
+
 /**
  * 内嵌tomcat, 用main方法启动这个应用即可
  * @date 2017年9月17日上午2:33:52
@@ -33,30 +31,32 @@ import java.util.stream.Collectors;
  * @author LiangTianDong
  */
 public class MainStarter extends WebApplicationContext {
-	private static final Logger LOG = LoggerFactory.getLogger(MainStarter.class);
-	/**
-	 * tomcat对象, 用于设置一些必要的配置
-	 */
+	// Tomcat实例
 	private static final Tomcat TOMCAT = new Tomcat();
-	
+	// MainStarter实例
 	private static final MainStarter MAIN_STARTER = new MainStarter();
-	
-	private static Pattern pattern = Pattern.compile("^nymph\\w*\\.xml$");
+	// 正则的匹配规则
+	private static Pattern pattern = Pattern.compile("^nymph.*\\.(xml|yml)$");
 	/**
-	 * 启动TOMCAT
+	 * 启动内嵌TOMCAT
 	 * @param clazz
 	 */
 	public static void start(Class<?> clazz) {
-		MAIN_STARTER.load(clazz);
+		try {
+			MAIN_STARTER.load(clazz);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * 加载各种配置
+	 * @throws Exception
 	 */
-	private void load(Class<?> clazz) {
-		// 加载配置
-		initConfiguration(clazz.getAnnotation(ConfPosition.class));
-		LOG.info("your configuration : {}", configuration);
+	private void load(Class<?> clazz) throws Exception {
+		// 初始化配置
+		ConfPosition conf = clazz.getAnnotation(ConfPosition.class);
+		initConfiguration(conf);
 		// 初始化bean工厂
 		initBeansFactory();
 
@@ -65,40 +65,39 @@ public class MainStarter extends WebApplicationContext {
 		TOMCAT.setPort(config.getPort());
 		// 设置catalina home
 		TOMCAT.setBaseDir(BasicUtil.getSource(""));
-		try {
-			/*
-			 * 设置存放视图文件的地方, 如jsp, css, js
-			 * 当打成jar包部署时只能填硬盘上存在的目录, 
-			 * 因为并不能读取到jar包内的jsp文件
-			 */
-			Optional<String> webPath = config.getWebappPath();
-			File webapp = new File(webPath.orElse(BasicUtil.getSource("src/main/webapp")));
-			if (!webapp.exists()) {
-				webapp = new File(BasicUtil.getSource("webapp"));
-			}
-			if (!webapp.exists()) {
-				webapp = new File(BasicUtil.getSource("WebContent"));
-			}
-			
-			Context context = new StandardContext();
-			context.setPath(config.getContextPath());
-			context.addLifecycleListener(new FixContextListener());
-			
-			if (webapp.exists()) {
-				context.addLifecycleListener(new ContextConfig());
-				context.setDocBase(webapp.getAbsolutePath());
-			}
-			// 加载过滤器和servlet
-			loadFilter(context);
-			loadServlets(context);
-			loadEqulasConfig();
-			
-			TOMCAT.getHost().addChild(context);
-			TOMCAT.start();
-			TOMCAT.getServer().await();
-		} catch (Exception e) {
-			LOG.error(null, e);
+		/*
+		 * 设置存放视图文件的地方, 如jsp, css, js
+		 * 当打成jar包部署时只能填硬盘上存在的目录, 
+		 * 因为并不能读取到jar包内的jsp文件
+		 */
+		Optional<String> webPath = config.getWebappPath();
+		String source = BasicUtil.getSource("src/main/webapp");
+		String rootPath = webPath.orElse(source);
+		File webapp = new File(rootPath);
+		
+		if (!webapp.exists()) {
+			webapp = new File(BasicUtil.getSource("WebContent"));
 		}
+		if (!webapp.exists()) {
+			webapp = new File(BasicUtil.getSource("WebRoot"));
+		}
+
+		Context context = new StandardContext();
+		context.setPath(config.getContextPath());
+		context.addLifecycleListener(new FixContextListener());
+
+		if (webapp.exists()) {
+			context.addLifecycleListener(new ContextConfig());
+			context.setDocBase(webapp.getAbsolutePath());
+		}
+		// 加载过滤器和servlet
+		loadFilter(context);
+		loadServlets(context);
+		loadEqulasConfig();
+
+		TOMCAT.getHost().addChild(context);
+		TOMCAT.start();
+		TOMCAT.getServer().await();
 	}
 	
 	/**
@@ -107,22 +106,17 @@ public class MainStarter extends WebApplicationContext {
 	 */
 	protected void initConfiguration(ConfPosition conf) {
 		if (conf == null) {
-			configuration = XmlConfUtil.readXmls(defaultXml());
+			configuration = ConfRead.readConf(defaultConf());
 		} else {
-			String[] value = conf.value();
-			if (value[0].endsWith(".xml")) {
-				configuration = XmlConfUtil.readXmls(value);
-			} else {
-				configuration = YmlConfUtil.readYmls(value);
-			}
+			configuration = ConfRead.readConf(conf.value());
 		}
 	}
 	
 	/**
-	 * 获取classpath下的匹配到的xml文件(默认读取xml)
-	 * @return
+	 * 获取classpath下的找到的xml和yml配置文件(文件开头名称为nymph的)
+	 * @return	所有找到的文件名字
 	 */
-	public String[] defaultXml() {
+	protected String[] defaultConf() {
 		File file = new File(BasicUtil.getSource(""));
 		List<String> collect = Arrays.stream(file.listFiles()).filter(f -> {
 			String name = f.getName();
@@ -140,7 +134,7 @@ public class MainStarter extends WebApplicationContext {
 	 */
 	protected void initBeansFactory() {
 		// 实例化bean处理器
-		beansFactory = new DefaultBeansFactory();
+		beansFactory = new DefaultWebApplicationBeansFactory();
 		beansFactory.setConfiguration(configuration);
 		Optional<String> handler = configuration.getBeansHandler();
 		String handlerClass = handler.orElse(DEFAULT_BEANS_HANDLER);
@@ -156,7 +150,9 @@ public class MainStarter extends WebApplicationContext {
 	 */
 	protected void loadServlets(Context context) {
 		Tomcat.initWebappDefaults(context);
-		config.getExclutions().forEach(exclude -> context.addServletMappingDecoded(exclude, "default"));
+		config.getExclutions().forEach(exclude -> {
+			context.addServletMappingDecoded(exclude, "default");
+		});
 		// 核心调度器
 		Wrapper dispatcher = Tomcat.addServlet(context, "Nymph", CORE_REQUEST_DISPATCHER);
 		dispatcher.setAsyncSupported(true);
@@ -193,8 +189,7 @@ public class MainStarter extends WebApplicationContext {
 
 	/**
 	 * 定义一个过滤器
-	 * @param className
-	 *            过滤器的全路径
+	 * @param className 过滤器的全路径
 	 * @return
 	 */
 	protected FilterDef filterDef(String className) {
@@ -208,10 +203,8 @@ public class MainStarter extends WebApplicationContext {
 	/**
 	 * 设置过滤器的url映射
 	 * 
-	 * @param name
-	 *            要映射的过滤器的名字
-	 * @param urlPattern
-	 *            要过滤的url
+	 * @param name			要映射的过滤器的名字
+	 * @param urlPattern	要过滤的url
 	 * @return
 	 */
 	protected FilterMap filterMap(String name, String urlPattern) {

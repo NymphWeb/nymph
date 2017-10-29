@@ -1,6 +1,6 @@
 package com.nymph.start;
 
-import com.nymph.bean.component.BeansComponent;
+import com.nymph.bean.BeansComponent;
 import com.nymph.config.WebConfig;
 import com.nymph.context.impl.AbstractResolver;
 import com.nymph.exception.handle.EnableExceptionHandler;
@@ -19,19 +19,19 @@ import java.util.Optional;
  */
 public abstract class WebApplicationContext extends AbstractResolver {
 	/**
-	 *  字符编码过滤器
+	 * 字符编码过滤器
 	 */
 	protected static final String DEFAULT_ENCODING_FILTER = "com.nymph.filter.EncodingFilter";
 	/**
-	 *  核心调度器
+	 * 核心调度器
 	 */
 	protected static final String CORE_REQUEST_DISPATCHER = "com.nymph.context.impl.AsyncDispatcher";
 	/**
-	 *  默认的bean处理器
+	 * 默认的bean处理器
 	 */
-	protected static final String DEFAULT_BEANS_HANDLER = "com.nymph.bean.impl.DefaultBeansHandler";
+	protected static final String DEFAULT_BEANS_HANDLER = "com.nymph.bean.core.DefaultBeansHandler";
 	/**
-	 *  关于web方面的配置类
+	 * 关于web方面的配置类
 	 */
 	protected WebConfig config;
 	

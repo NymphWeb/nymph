@@ -17,25 +17,25 @@
 	</webConfig>
 	
 	<component class="test.Man" id="man">
-		<setter name="setName" value="学友"/>
+		<setter name="setName" value="张学友"/>
 		<setter name="setProperties" ref="properties"/>
 	</component>
 	
 	<component class="java.util.Properties" id="properties">
 		<method name="setProperty">
-			<property value="德华"/>
+			<property value="刘德华"/>
 			<property value="33"/>
 		</method>
 		<method name="setProperty">
-			<property value="德华2"/>
+			<property value="刘德华2"/>
 			<property value="34"/>
 		</method>
 		<method name="setProperty">
-			<property value="德华3"/>
+			<property value="刘德华3"/>
 			<property value="35"/>
 		</method>
 		<method name="setProperty">
-			<property value="德华4"/>
+			<property value="刘德华4"/>
 			<property value="36"/>
 		</method>
 	</component>
