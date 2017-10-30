@@ -1,9 +1,33 @@
 # nymph
 
-### 配置文件
-#### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
+#### 配置文件
+##### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
-```java
+###### yml配置文件
+```yml
+webConfig: #注意层次 每个子的配置用一个空格或者tab缩进
+  port: 9900 #内嵌tomcat可以在此设置端口号。对读取 web.xml的tomcat来说这项配置没用, 只能自己去server.xml配置
+  contextPath: '' #对于内嵌tomcat来说他就表示项目名, 对于读取web.xml的tomcat来说这个配置没有任何意义
+  urlPattern: /   #表示的是你希望让Nymph处理哪些url, / 和 /*表示所有  区别是 / 不会截取到.jsp后缀的url
+  suffix: .jsp   #方法返回值路径的后缀
+  prefix: /WEB-INF #同上, 前缀
+  exclutions:   #想放行的静态资源  也可以直接放行整个文件夹 如 /css/*   /js/* 这种格式
+   - '*.css'
+   - '*.ico'
+   - '*.jpg'
+  filters:
+   - com.nymph.filter.TestFilter@*.do # @后面的表示拦截的urlPattern 不设置的话默认是/* 拦截所有
+  #异常处理器配置 配置的类需要实现ExceptionHandler接口
+  exceptionHandler: com.nymph.exception.impl.ExceptionHandlerImpl
+  
+scanner: #使用了@Beans @HTTP 相关注解的必须得配置这个, 让容器能扫描到你的类
+  - com.nymph.web
+component: #将给出的类交给容器管理
+  - com.nymph.bean.Woman
+  - com.nymph.bean.Man
+```
+###### xml配置文件
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <nymph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://www.nymph.com/nymph" 
@@ -28,7 +52,7 @@
 	</webConfig>
 </nymph>
 ```
-### HttpBean代码实例
+#### HttpBean代码实例
 ```java
 @HTTP("/start") // 表示此类是一个Http请求的映射类
 public class HelloWorld {
@@ -75,7 +99,7 @@ public class HelloWorld {
 }
 ```
 
-### 通过HttpSocket获取HttpBean发出的序列化对象
+#### 通过HttpSocket获取HttpBean发出的序列化对象
 ```java
 public class Test {
 	public static void main(String[] args) {
