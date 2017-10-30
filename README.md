@@ -1,6 +1,6 @@
 # nymph
 
-## 配置文件
+### 配置文件
 #### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
 ```java
@@ -28,7 +28,7 @@
 	</webConfig>
 </nymph>
 ```
-## HttpBean代码实例
+### HttpBean代码实例
 ```java
 @HTTP("/start") // 表示此类是一个Http请求的映射类
 public class HelloWorld {
@@ -59,6 +59,14 @@ public class HelloWorld {
 		share.shareObject(new Man("张学友"));
 	}
 	
+	// 文件上传的处理
+	@GET("/upload")
+	public void test5(Multipart multipart) throws IOException {
+		// file表示页面input标签的name
+		FileInf fileInf = multipart.getFileInf("file");
+		fileInf.writeTo("c:/data/demo.jpg");
+	}
+	
 
 	// 内嵌tomcat的形式启动应用
 	public static void main(String[] args) throws Exception {
@@ -67,7 +75,7 @@ public class HelloWorld {
 }
 ```
 
-## 通过HttpSocket获取HttpBean发出的序列化对象
+### 通过HttpSocket获取HttpBean发出的序列化对象
 ```java
 public class Test {
 	public static void main(String[] args) {
