@@ -1,5 +1,8 @@
 # nymph
 
+##配置文件
+####默认加载classpath下的所有nymph开头的xml或者yml配置文件
+
 ```java
 <?xml version="1.0" encoding="UTF-8"?>
 <nymph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -24,7 +27,8 @@
 	</webConfig>
 </nymph>
 
-```java
+
+##HttpBean代码实例
 @HTTP("/start") // 表示此类是一个Http请求的映射类
 public class HelloWorld {
 
