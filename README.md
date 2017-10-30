@@ -122,4 +122,4 @@ public class Test {
 }
 ```
 
-*author: 刘洋, 梁天东
+* author: 刘洋, 梁天东
