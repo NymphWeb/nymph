@@ -1,7 +1,7 @@
 # nymph
 
 ##配置文件
-####默认加载classpath下的所有nymph开头的xml或者yml配置文件
+###默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
 ```java
 <?xml version="1.0" encoding="UTF-8"?>
@@ -26,9 +26,9 @@
 		<urlPattern value="/"/>
 	</webConfig>
 </nymph>
-
-
+```
 ##HttpBean代码实例
+```java
 @HTTP("/start") // 表示此类是一个Http请求的映射类
 public class HelloWorld {
 
@@ -56,3 +56,4 @@ public class HelloWorld {
 		MainStarter.start(HelloWorld.class);
 	}
 }
+```
