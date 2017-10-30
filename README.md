@@ -1,4 +1,4 @@
-# nymph
+# Quick Start
 
 #### 配置文件
 ##### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
