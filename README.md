@@ -77,20 +77,12 @@ public class HelloWorld {
 		return man;
 	}
 	
-	// 序列化对象的传输
-	@GET("/class")
-	public void test3(Share share) {
-		// 发送一个序列化对象
-		Man man = new Man();
-		man.setName("张学友");
-		share.shareObject(man);
-	}
-	
 	// 文件上传的处理
 	@GET("/upload")
 	public void test5(Multipart multipart) throws IOException {
 		// file表示页面input标签的name
 		FileInf fileInf = multipart.getFileInf("file");
+		// 将文件写入指定的位置
 		fileInf.writeTo("c:/data/demo.jpg");
 	}
 	
@@ -104,11 +96,27 @@ public class HelloWorld {
 
 #### 通过HttpSocket获取HttpBean发出的序列化对象
 ```java
+@HTTP("/serializable")
+public class HttpTest {
+
+	// 序列化对象的传输
+	@GET("/class")
+	public void test3(Share share) {
+		// 发送一个序列化对象
+		Man man = new Man();
+		man.setName("张学友");
+		share.shareObject(man);
+	}
+}
+
 public class Test {
 	public static void main(String[] args) {
 		HttpSocket socket = new HttpSocket("192.168.2.000", 8080);
-		Man man = (Man)socket.getObject("/class", "GET");
-		// 此处man的name应该是张学友
+		Man man = (Man)socket.getObject("/serializable/class", "GET");
+		System.out/println(man.getName);
+		// 此处man的name应该为 "张学友"
+		
+		// 只使用一次的时候应该关掉socket连接
 		socket.close();
 	}
 }
