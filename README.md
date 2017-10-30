@@ -1,12 +1,13 @@
 # nymph
 
-##配置文件
-###默认加载classpath下的所有nymph开头的xml或者yml配置文件
+## 配置文件
+#### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
 ```java
 <?xml version="1.0" encoding="UTF-8"?>
 <nymph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns="http://www.nymph.com/nymph" xsi:schemaLocation="http://www.nymph.com/nymph http://www.nymph.com/nymph">
+	xmlns="http://www.nymph.com/nymph" 
+	xsi:schemaLocation="http://www.nymph.com/nymph http://www.nymph.com/nymph">
 	<!-- 表示此包下的类将会被容器扫描到, 并且带有@Bean相关注解的类会被注册到bean工厂 -->	
 	<scanners>
 		<scanner location="com.test"/>
@@ -27,7 +28,7 @@
 	</webConfig>
 </nymph>
 ```
-##HttpBean代码实例
+## HttpBean代码实例
 ```java
 @HTTP("/start") // 表示此类是一个Http请求的映射类
 public class HelloWorld {
@@ -50,6 +51,14 @@ public class HelloWorld {
 	public Man test2() {
 		return man;
 	}
+	
+	// 序列化对象的传输
+	@GET("/class")
+	public void test3(Share share) {
+		// 发送一个序列化对象
+		share.shareObject(new Man("张学友"));
+	}
+	
 
 	// 内嵌tomcat的形式启动应用
 	public static void main(String[] args) throws Exception {
@@ -57,3 +66,12 @@ public class HelloWorld {
 	}
 }
 ```
+
+## 通过HttpSocket获取HttpBean发出的序列化对象
+```java
+public class Test {
+	public static void main(String[] args) {
+		HttpSocket socket = new HttpSocket("192.168.2.000", 8080);
+		Man man = (Man)socket.getObject("/class", "GET");
+	}
+}
