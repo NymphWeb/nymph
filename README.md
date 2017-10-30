@@ -3,7 +3,7 @@
 #### 配置文件
 ##### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
-###### yml配置文件
+###### yml配置文件（注意缩进）
 ```yml
 webConfig: #注意层次 每个子的配置用一个空格或者tab缩进
   port: 9900 #内嵌tomcat可以在此设置端口号。对读取 web.xml的tomcat来说这项配置没用, 只能自己去server.xml配置
@@ -63,7 +63,8 @@ public class HelloWorld {
 	// 只允许get请求访问此方法 @UrlHolder表示url上声明的变量@test
 	@GET("/yes/@test")
 	public String test(@UrlHolder("test") String field, Transfer transfer) {
-		transfer.forRequest("q", man);
+		// transfer是内置的类， 用来将数据存到servlet的各作用域(request, session)
+		transfer.ofRequest("q", man);
 		// 表示转发到/WEB-INF/index.jsp
 		// 当返回值为"->/index"时表示重定向
 		return "/index";
@@ -80,7 +81,9 @@ public class HelloWorld {
 	@GET("/class")
 	public void test3(Share share) {
 		// 发送一个序列化对象
-		share.shareObject(new Man("张学友"));
+		Man man = new Man();
+		man.setName("张学友");
+		share.shareObject(man);
 	}
 	
 	// 文件上传的处理
@@ -105,5 +108,7 @@ public class Test {
 	public static void main(String[] args) {
 		HttpSocket socket = new HttpSocket("192.168.2.000", 8080);
 		Man man = (Man)socket.getObject("/class", "GET");
+		// 此处man的name应该是张学友
+		socket.close();
 	}
 }
