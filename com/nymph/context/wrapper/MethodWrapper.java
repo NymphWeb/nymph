@@ -6,8 +6,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
-import javassist.NotFoundException;
-
 /**
  * 主要用于获取方法的参数信息
  * @author LiuYang
@@ -41,8 +39,8 @@ public class MethodWrapper {
         this.parameters = method.getParameters();
         if (isUseJavassist) {
         	try {
-        		javassistParameterName = JavassistUtil.getParamName(method);
-			} catch (NotFoundException e) {
+        		javassistParameterName = Javassiss.getParamName(method);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
         }

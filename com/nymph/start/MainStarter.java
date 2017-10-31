@@ -82,6 +82,7 @@ public class MainStarter extends WebApplicationContext {
 			webapp = new File(BasicUtil.getSource("WebRoot"));
 		}
 
+		
 		Context context = new StandardContext();
 		context.setPath(config.getContextPath());
 		context.addLifecycleListener(new FixContextListener());

@@ -11,11 +11,11 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nymph.bean.web.HttpBeansContainer;
-import com.nymph.bean.web.HttpBeansContainer.HttpBean;
-import com.nymph.context.UrlResolver;
-import com.nymph.context.model.NyParam;
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.bean.web.MapperInfoContainer;
+import com.nymph.bean.web.MapperInfoContainer.MapperInfo;
+import com.nymph.context.ContextParameter;
+import com.nymph.context.ContextWrapper;
+import com.nymph.context.ResovlerUrl;
 import com.nymph.exception.NoSuchClassException;
 import com.nymph.queue.NyQueue;
 import com.nymph.transfer.Multipart;
@@ -26,12 +26,12 @@ import com.nymph.utils.StrUtil;
  * @author NYMPH
  * @date 2017年10月7日下午8:22:08
  */
-public class NyUrlResolver extends AbstractResolver implements UrlResolver {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NyUrlResolver.class);
+public class ResolverUrlImpl extends AbstractResolver implements ResovlerUrl {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUrlImpl.class);
 	/**
 	 *  httpbean的容器
 	 */
-	private static HttpBeansContainer container = beansFactory.getHttpBeansContainer();
+	private static MapperInfoContainer container = beansFactory.getHttpBeansContainer();
 	/**
 	 *  文件上传时需要的对象
 	 */
@@ -39,9 +39,9 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	/**
 	 *  参数队列
 	 */
-	private NyQueue<NyParam> queue;
+	private NyQueue<ContextParameter> queue;
 	
-	public NyUrlResolver(ContextWrapper wrapper, NyQueue<NyParam> queue) {
+	public ResolverUrlImpl(ContextWrapper wrapper, NyQueue<ContextParameter> queue) {
 		super(wrapper);
 		this.queue = queue;
 	}
@@ -52,7 +52,7 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 		String urlMapping = StrUtil.delete(wrapper.getUri(), contextPath);
 		
 		// 获取url映射的类和方法 
-		HttpBean httpBean = placeHolderHandler(urlMapping);
+		MapperInfo httpBean = placeHolderHandler(urlMapping);
 		urlMappingResloverCheck(httpBean);
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("httpBeans: {}", container);
@@ -60,24 +60,24 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 		// 获取到request中所有的参数
 		Map<String, String[]> params = judgeContentType();
 		// 将处理好的参数对象放入队列
-		queue.put(new NyParam(httpBean, params, wrapper, multipart));
+		queue.put(new ContextParameter(httpBean, params, wrapper, multipart));
 	}
 	
 	@Override
-	public HttpBean placeHolderHandler(String url) throws Exception {
-		HttpBean httpBean = container.getHttpBean(url);
+	public MapperInfo placeHolderHandler(String url) throws Exception {
+		MapperInfo mapperInfo = container.getMapperInfo(url);
 		// 如果已经能从容器中取到url对应的映射对象则直接返回
-		if (httpBean != null) 
-			return httpBean;
+		if (mapperInfo != null) 
+			return mapperInfo;
 		// 否则遍历httpMap中的url
-		out: for (Entry<String, HttpBean> kv : container.getAllHttpBean()) {
+		out: for (Entry<String, MapperInfo> kv : container.getAllMapperInfo()) {
 			// 浏览器请求的地址
 			String[] requestUrls = url.split("/");
 			// httpBean中保存的地址
 			String[] nativeUrls = kv.getKey().split("/");
 			
 			if (requestUrls.length == nativeUrls.length) {
-				HttpBean bean = kv.getValue();
+				MapperInfo info = kv.getValue();
 				// 存放占位符和对应值的Map
 				Map<String, String> placeHolder = new HashMap<>();
 				
@@ -91,7 +91,7 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 					}
 				}
 				// 由于并发问题这里如果是同一个对象的话会共享数据, 所以就克隆了一个
-				return bean.initialize(placeHolder);
+				return info.initialize(placeHolder);
 			}
 		}
 		return null;
@@ -145,11 +145,11 @@ public class NyUrlResolver extends AbstractResolver implements UrlResolver {
 	
 	/**
 	 * url映射检查, 如果匹配不到任何对象则抛出异常
-	 * @param mapper	匹配到的mapper对象
-	 * @param url		浏览器请求的url
+	 * @param mapperInfo	匹配到的mapperinfo对象
+	 * @param url			浏览器请求的url
 	 */
-	private void urlMappingResloverCheck(HttpBean mapper) {
-		if (mapper == null) {
+	private void urlMappingResloverCheck(MapperInfo mapperInfo) {
+		if (mapperInfo == null) {
 			throw new NoSuchClassException(wrapper.getUri());
 		}
 	}

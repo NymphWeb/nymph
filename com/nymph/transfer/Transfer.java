@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.context.ContextWrapper;
 /**
  * 对request 和session的进行操作的类
  * @author liuYang
@@ -22,7 +22,7 @@ public class Transfer {
 	 * @param name	参数的名字
 	 * @param value	参数的值
 	 */
-	public void forRequest(String name, Object value) {
+	public void ofRequest(String name, Object value) {
 		async.httpRequest().setAttribute(name, value);
 	}
 	/**
@@ -30,7 +30,7 @@ public class Transfer {
 	 * @param name	参数的名字
 	 * @param value	参数的值
 	 */
-	public void forSession(String name, Object value) {
+	public void ofSession(String name, Object value) {
 		HttpServletRequest request = async.httpRequest();
 		request.getSession().setAttribute(name, value);
 	}

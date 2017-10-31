@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nymph.context.model.NyParam;
-import com.nymph.context.model.NyView;
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.context.ContextParameter;
+import com.nymph.context.ContextView;
+import com.nymph.context.ContextWrapper;
 import com.nymph.queue.NyQueue;
 import com.nymph.utils.PoolUtil;
 
@@ -45,10 +45,11 @@ public final class AsyncDispatcher extends HttpServlet implements Runnable {
 	// context队列
 	private final NyQueue<ContextWrapper> contexts = new NyQueue<>();
 	// 参数队列
-	private final NyQueue<NyParam> params = new NyQueue<>();
+	private final NyQueue<ContextParameter> params = new NyQueue<>();
 	// 视图队列
-	private final NyQueue<NyView> views = new NyQueue<>();
+	private final NyQueue<ContextView> views = new NyQueue<>();
 
+	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) 
 			throws IOException, ServletException {
 		try {
@@ -64,7 +65,7 @@ public final class AsyncDispatcher extends HttpServlet implements Runnable {
 	 */
 	public void dispatchUrl() throws InterruptedException {
 		ContextWrapper wrapper = contexts.take();
-		contextPool.execute(new NyUrlResolver(wrapper, params));
+		contextPool.execute(new ResolverUrlImpl(wrapper, params));
 	}
 	
 	/** 
@@ -72,8 +73,8 @@ public final class AsyncDispatcher extends HttpServlet implements Runnable {
 	 * @throws InterruptedException 
 	 */
 	public void dispatchParam() throws InterruptedException {
-		NyParam param = params.take();
-		paramPool.execute(new NyParamResolver(param, views));
+		ContextParameter param = params.take();
+		paramPool.execute(new ResovlerParameterImpl(param, views));
 	}
 
 	/**
@@ -81,8 +82,8 @@ public final class AsyncDispatcher extends HttpServlet implements Runnable {
 	 * @throws InterruptedException 
 	 */
 	public void dispatchView() throws InterruptedException {
-		NyView view = views.take();
-		viewPool.execute(new NyViewResolver(view));
+		ContextView view = views.take();
+		viewPool.execute(new ResolverViewImpl(view));
 	}
 
 	/** 

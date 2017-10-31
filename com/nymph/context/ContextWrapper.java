@@ -1,10 +1,12 @@
-package com.nymph.context.wrapper;
+package com.nymph.context;
 
-import com.nymph.utils.BasicUtil;
-import com.nymph.utils.PageCSS;
-import com.nymph.utils.StrUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.util.Map;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.ServletException;
@@ -12,15 +14,13 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.nymph.rmi.Serializables;
+import com.nymph.utils.BasicUtil;
+import com.nymph.utils.PageCSS;
+import com.nymph.utils.StrUtil;
 
 /**
  * Servlet3.0之后的异步请求上下文的一个包装类
@@ -29,7 +29,6 @@ import java.util.Map;
  * @date 2017年9月21日下午4:58:31
  */
 public final class ContextWrapper {
-
 	private static final Logger LOGGER = LoggerFactory.getLogger(ContextWrapper.class);
 
 	private AsyncContext context;
@@ -215,19 +214,21 @@ public final class ContextWrapper {
 	/**
 	 * 发送一个实现了Serializable的对象
 	 * @param serializable
+	 * @throws IOException
 	 */
-	public void sendObject(Serializable serializable) {
-		ByteArrayOutputStream byteArrayOutputStream = null;
-		ObjectOutputStream objectOutputStream = null;
-		try {
-			byteArrayOutputStream = new ByteArrayOutputStream();
-			objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-			objectOutputStream.writeObject(serializable);
-			response.getOutputStream().write(byteArrayOutputStream.toByteArray());
-		} catch (Exception e) {
-			LOGGER.error(null, e);
-		} finally {
-			BasicUtil.closed(objectOutputStream, byteArrayOutputStream);
+	public void sendObject(Object serializable) throws IOException {
+		serializableCheck(serializable);
+		byte[] serialize = Serializables.serialize(serializable);
+		response.getOutputStream().write(serialize);
+	}
+	
+	/**
+	 * 序列化检查
+	 * @param object
+	 */
+	private void serializableCheck(Object object) {
+		if (!(object instanceof Serializable)) {
+			throw new IllegalArgumentException("返回的对象必须实现序列化");
 		}
 	}
 }

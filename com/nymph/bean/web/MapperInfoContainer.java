@@ -21,9 +21,9 @@ import com.nymph.utils.AnnoUtil;
  * @author NYMPH
  * @date 2017年9月26日2017年9月26日
  */
-public class HttpBeansContainer {
+public class MapperInfoContainer {
 
-	private final Map<String, HttpBean> httpMap = new HashMap<>();
+	private final Map<String, MapperInfo> httpMap = new HashMap<>();
 
 	/**
 	 * 对拥有@HTTP注解的bean进行处理主要是将@HTTP注解的value和@Request系列注解(@GET这种)
@@ -44,7 +44,7 @@ public class HttpBeansContainer {
 			if (request != null) {
 				methodModifierCheck(method);
 				String url = joinUrl(http.value(), request);
-				httpMap.put(url, new HttpBean(clazz.getName(), method));
+				httpMap.put(url, new MapperInfo(clazz.getName(), method));
 			}
 		}
 	}
@@ -77,29 +77,29 @@ public class HttpBeansContainer {
 		return String.valueOf(httpMap);
 	}
 
-	public HttpBean getHttpBean(String url) {
+	public MapperInfo getMapperInfo(String url) {
 		return httpMap.get(url);
 	}
 
-	public Set<Entry<String, HttpBean>> getAllHttpBean() {
+	public Set<Entry<String, MapperInfo>> getAllMapperInfo() {
 		return httpMap.entrySet();
 	}
 
-	/** httpBean容器内存放的对象 */
-	public class HttpBean implements Cloneable {
-		private String name; // web层映射类的类名
-
-		private Method method; // 路径对应的方法
-
+	/** 容器内存放的对象 */
+	public class MapperInfo implements Cloneable {
+		// web层映射类的类名
+		private String name;
+		// 路径对应的方法
+		private Method method;
 		// @UrlVal注解的value值
 		private Map<String, String> placeHolder;
 
-		public HttpBean(String name, Method method) {
+		public MapperInfo(String name, Method method) {
 			this.name = name;
 			this.method = method;
 		}
 
-		public HttpBean() {}
+		public MapperInfo() {}
 
 		public String getName() {
 			return name;
@@ -125,8 +125,8 @@ public class HttpBeansContainer {
 			this.placeHolder = placeHolder;
 		}
 
-		public HttpBean initialize(Map<String, String> placeHolder) throws CloneNotSupportedException {
-			HttpBean httpBean = (HttpBean)this.clone();
+		public MapperInfo initialize(Map<String, String> placeHolder) throws CloneNotSupportedException {
+			MapperInfo httpBean = (MapperInfo)this.clone();
 			httpBean.setPlaceHolder(placeHolder);
 			return httpBean;
 		}

@@ -1,8 +1,6 @@
 package com.nymph.rmi;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -10,12 +8,12 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
- * 发出Http请求的工具, 可以远程获取Serializable对象
+ * 发出Http请求并获取服务端响应的工具
  * @author LiuYang
  * @author LiangTianDong
  * @date 2017年10月19日下午9:18:10
  */
-public class HttpSocket {
+public class HttpChannel {
 	private static final String PARAM_POSITION = "\n\r\n";
 	
 	// 套接字管道
@@ -33,7 +31,7 @@ public class HttpSocket {
 	// 主机名 或者叫 ip
 	private String host;
 	
-	public HttpSocket(String host, int port, String charset, int bufferSize) {
+	public HttpChannel(String host, int port, String charset, int bufferSize) {
 		try {
 			this.port = port;
 			this.host = host;
@@ -45,7 +43,7 @@ public class HttpSocket {
 		}
 	}
 	
-	public HttpSocket(String host, int port) {
+	public HttpChannel(String host, int port) {
 		try {
 			this.port = port;
 			this.host = host;
@@ -63,7 +61,7 @@ public class HttpSocket {
 	 * @return		服务器响应的结果
 	 */
 	public String doGet(String path) {
-		byte[] bs = doAccess(path, "GET", null);
+		byte[] bs = doAccess(path, Pattern.GET, null);
 		return getResponse(bs);
 	}
 	/**
@@ -73,7 +71,7 @@ public class HttpSocket {
 	 * @return		服务器响应的结果
 	 */
 	public String doPost(String path, String... form) {
-		byte[] bs = doAccess(path, "POST", format(form));
+		byte[] bs = doAccess(path, Pattern.POST, format(form));
 		return getResponse(bs);
 	}
 	/**
@@ -83,7 +81,7 @@ public class HttpSocket {
 	 * @return		服务器响应的结果
 	 */
 	public String doPut(String path, String... form) {
-		byte[] bs = doAccess(path, "PUT", format(form));
+		byte[] bs = doAccess(path, Pattern.PUT, format(form));
 		return getResponse(bs);
 	}
 	/**
@@ -93,39 +91,22 @@ public class HttpSocket {
 	 * @return		服务器响应的结果
 	 */
 	public String doDelete(String path, String... form) {
-		byte[] bs = doAccess(path, "DELETE", format(form));
+		byte[] bs = doAccess(path, Pattern.DELETE, format(form));
 		return getResponse(bs);
 	}
 	
 	/**
 	 * 获取服务端响应的序列化对象
 	 * @param path		请求的路径
-	 * @param method 	请求方式
+	 * @param pattern 	请求方式
 	 * @return			获取的对象
-	 * @throws IOException
-	 * @throws ClassNotFoundException
 	 */
-	public Object getObject(String path, String method) {
-		byte[] bs = doAccess(path, method.toUpperCase(), null);
+	public Object getObject(String path, Pattern pattern) {
+		byte[] bs = doAccess(path, pattern, null);
 		// 截取响应头中的字节信息
 		for (int i = 0; i < bs.length; i++) {
-			if (i > 0 && bs[i - 1] == '\n' && bs[i] == '\r' && bs[i + 1] == '\n') {
-				byte[] bytes = new byte[bs.length - (i + 2)];
-				System.arraycopy(bs, i + 2, bytes, 0, bytes.length);
-				
-				ObjectInputStream inputStream = null;
-				try {
-					inputStream = new ObjectInputStream(new ByteArrayInputStream(bytes));
-					return inputStream.readObject();
-				} catch (Exception e) {
-					e.printStackTrace();
-				} finally {
-					if (inputStream != null) {
-						try {
-							inputStream.close();
-						} catch (IOException e) {}
-					}
-				}
+			if (i >= 3 && bs[i - 1] == '\n' && bs[i - 2] == '\r' && bs[i - 3] == '\n') {
+				return Serializables.deSerialize(bs, i, bs.length);
 			}
 		}
 		return null;
@@ -164,11 +145,11 @@ public class HttpSocket {
 	/**
 	 * 请求目标服务器上的指定资源, 并获取响应数据
 	 * @param path		服务器的资源路径(url)
-	 * @param method	请求方式
+	 * @param pattern	请求方式
 	 * @param params	表单数据
 	 * @return			响应结果
 	 */
-	private byte[] doAccess(String path, String method, String params) {
+	private byte[] doAccess(String path, Pattern pattern, String params) {
 		try {
 			long length = 0;
 			String param = "";
@@ -177,7 +158,7 @@ public class HttpSocket {
 				length = param.getBytes(charset).length;
 			}
 			// 初始化请求头信息
-			String header = initilizedRequestHeader(method, path, length, params);
+			String header = initilizedRequestHeader(pattern.name(), path, length, params);
 				
 			synchronized (this) {
 				socketChannel.write(ByteBuffer.wrap(header.getBytes(charset)));
@@ -198,14 +179,25 @@ public class HttpSocket {
 	 * 初始化请求头信息
 	 */
 	private String initilizedRequestHeader(String method, String path, long length, String param) {
-		return new StringBuilder().append(method + " " + path)
-			.append(" HTTP/1.1\n")
-			.append("Host:"+ host +":"+ port +"\n")
-			.append("User-Agent: ly/1.0\n")
+		return new StringBuilder()
+			.append(method)
+			.append(" ")
+			.append(path)
+			.append(" ")
+			.append("HTTP/1.1\n")
+			.append("Host:")
+			.append(host)
+			.append(":")
+			.append(port)
+			.append("\n")
+			.append("User-Agent: liu\n")
 			.append("Accept: */*\n")
-			.append("Content-Length: "+ length +"\n")
+			.append("Content-Length: ")
+			.append(length)
+			.append("\n")
 			.append("Accept-Encoding: gzip, deflate\n")
 			.append("Connection: keep-alive\n\r\n")
-			.append(param).toString();
+			.append(param)
+			.toString();
 	}
 }

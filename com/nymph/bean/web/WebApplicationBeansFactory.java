@@ -17,12 +17,12 @@ public interface WebApplicationBeansFactory extends BeansFactory {
 	 * 获取HttpBean处理器
 	 * @return
 	 */
-	HttpBeansContainer getHttpBeansContainer();
+	MapperInfoContainer getHttpBeansContainer();
 	/**
 	 * plain setter
 	 * @param httpHandler HttpBean处理器
 	 */
-	void setHttpBeansContainer(HttpBeansContainer httpHandler);
+	void setHttpBeansContainer(MapperInfoContainer httpHandler);
 	/**
 	 * 获取基础的Bean处理器
 	 * @return

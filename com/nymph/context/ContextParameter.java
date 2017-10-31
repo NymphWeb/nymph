@@ -1,16 +1,15 @@
-package com.nymph.context.model;
+package com.nymph.context;
 
 import java.util.Map;
 
-import com.nymph.bean.web.HttpBeansContainer.HttpBean;
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.bean.web.MapperInfoContainer.MapperInfo;
 import com.nymph.transfer.Multipart;
 /**
  * 参数解析器将要解析的对象
  * @author NYMPH
  * @date 2017年9月21日下午8:16:00
  */
-public class NyParam {
+public class ContextParameter {
 
 	private Map<String, String[]> params;
 	
@@ -18,26 +17,25 @@ public class NyParam {
 	
 	private Multipart multipart;
 	
-	private HttpBean httpBean;
+	private MapperInfo mapperInfo;
 	
-	public NyParam(	HttpBean httpBean,
+	public ContextParameter(MapperInfo mapperInfo,
 					Map<String, String[]> params,
 					ContextWrapper context,
 					Multipart multipart) {
 		
-		
-		this.httpBean = httpBean;
+		this.mapperInfo = mapperInfo;
 		this.context = context;
 		this.params = params;
 		this.multipart = multipart;
 	}
 	
-	public HttpBean getHttpBean() {
-		return httpBean;
+	public MapperInfo getMapperInfo() {
+		return mapperInfo;
 	}
 
 	public String getPlaceHolder(String url) {
-		return httpBean.getPlaceHolder().get(url);
+		return mapperInfo.getPlaceHolder().get(url);
 	}
 
 	public ContextWrapper getContext() {

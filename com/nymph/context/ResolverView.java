@@ -5,7 +5,7 @@ package com.nymph.context;
  * @author LiangTianDong
  * @date 2017年9月26日2017年9月26日
  */
-public interface ViewResolver extends Resolver{
+public interface ResolverView extends Resolver{
 	/**
 	 * 判断结果是转发到请求还是重定向 或者是直接响应json
 	 * @param result		http映射bean的方法返回值, 一般为字符串, 返回json时可能是个普通对

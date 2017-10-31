@@ -1,6 +1,6 @@
 package com.nymph.interceptor;
 
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.context.ContextWrapper;
 /**
  * 标准的拦截器,实现多个时会形成一个拦截器链, 通过实现{@link #getOrder()}来指定
  *     拦截器链的执行顺序, 值越小优先级越高

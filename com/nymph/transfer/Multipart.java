@@ -42,7 +42,7 @@ public final class Multipart {
 		return fileInfo.get(fieldName);
 	}
 	/**
-	 * 页面的所有的input标签的type=file 的 name属性值
+	 * 页面的所有的type=file的input标签的name属性值
 	 * @return
 	 */
 	public List<String> fields() {
@@ -78,6 +78,11 @@ public final class Multipart {
 			return (FileInputStream)input;
 		}
 		
+		/**
+		 * 将文件写入到硬盘的指定位置
+		 * @param location	硬盘的地址
+		 * @return			写入完成后的文件
+		 */
 		public File writeTo(String location) {
 			FileChannel channel = null;
 			FileOutputStream out = null;
@@ -95,7 +100,7 @@ public final class Multipart {
 		}
 		
 		/**
-		 * 根据name属性获取 上传的文件的真实名称
+		 * 上传的文件的真实名称
 		 * @return
 		 */
 		public String getFileName() {

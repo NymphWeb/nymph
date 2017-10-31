@@ -5,7 +5,7 @@ import com.nymph.bean.component.DefaultBeansComponent;
 import com.nymph.bean.component.EnableBeanProxyHandler;
 import com.nymph.bean.component.EnableBeanRegister;
 import com.nymph.bean.core.PropertyValueInjection;
-import com.nymph.bean.core.ScannerClasspathAndJar;
+import com.nymph.bean.core.ScannerNymphBeans;
 import com.nymph.config.Configuration;
 
 import java.util.Collection;
@@ -27,7 +27,7 @@ public class DefaultWebApplicationBeansFactory implements WebApplicationBeansFac
 	/**
 	 *  bean扫描器的实现
 	 */
-	private ScannerClasspathAndJar autoScanBeans;
+	private ScannerNymphBeans autoScanBeans;
 	/**
 	 *  bean依赖注入的实现
 	 */
@@ -35,7 +35,7 @@ public class DefaultWebApplicationBeansFactory implements WebApplicationBeansFac
 	/**
 	 *  httpbean的容器
 	 */
-	private HttpBeansContainer httpContainer;
+	private MapperInfoContainer httpContainer;
 	/**
 	 *  bean组件
 	 */
@@ -54,12 +54,12 @@ public class DefaultWebApplicationBeansFactory implements WebApplicationBeansFac
 	private Configuration Configuration;
 
 	public DefaultWebApplicationBeansFactory() {
-		httpContainer = new HttpBeansContainer();
+		httpContainer = new MapperInfoContainer();
 		beansComponent = new DefaultBeansComponent();
 	}
 	
 	private void initScannerSupport() {
-		autoScanBeans = new ScannerClasspathAndJar(
+		autoScanBeans = new ScannerNymphBeans(
 			container, httpContainer, beansHandler, beansComponent);
 		autoInjectBeans = new PropertyValueInjection(container);
 	}
@@ -108,12 +108,12 @@ public class DefaultWebApplicationBeansFactory implements WebApplicationBeansFac
 	}
 
 	@Override
-	public HttpBeansContainer getHttpBeansContainer() {
+	public MapperInfoContainer getHttpBeansContainer() {
 		return httpContainer;
 	}
 
 	@Override
-	public void setHttpBeansContainer(HttpBeansContainer httpHandler) {
+	public void setHttpBeansContainer(MapperInfoContainer httpHandler) {
 		this.httpContainer = httpHandler;
 	}
 

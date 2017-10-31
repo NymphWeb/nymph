@@ -3,9 +3,10 @@ package com.nymph.transfer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.Serializable;
 
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.context.ContextWrapper;
 import com.nymph.utils.BasicUtil;
 /**
  * 文件下载的相关类
@@ -57,6 +58,10 @@ public class Share {
 	 * @param serializable
 	 */
 	public void shareObject(Serializable serializable) {
-		wrapper.sendObject(serializable);
+		try {
+			wrapper.sendObject(serializable);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

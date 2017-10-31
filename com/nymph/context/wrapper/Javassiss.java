@@ -10,15 +10,15 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import javassist.bytecode.MethodInfo;
 
-public class JavassistUtil {
+public class Javassiss {
 
 	/**
 	 * 获取方法参数名
 	 * @param method
-	 * @return
+	 * @return 
 	 * @throws NotFoundException
 	 */
-	public static String[] getParamName(Method method) throws NotFoundException {
+	public static String[] getParamName(Method method) throws Exception {
 		ClassPool pool = ClassPool.getDefault();
 		CtClass ctClass = pool.get(method.getDeclaringClass().getName());
 		CtMethod ctMethod = ctClass.getDeclaredMethod(method.getName());

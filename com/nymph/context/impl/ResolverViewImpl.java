@@ -3,16 +3,16 @@ package com.nymph.context.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nymph.context.ViewResolver;
-import com.nymph.context.model.NyView;
+import com.nymph.context.ContextView;
+import com.nymph.context.ResolverView;
 import com.nymph.json.Jsons;
 /**
- * @说明: 视图解析器的实现
- * @时间: 2017年9月17日
- * @作者: Nymph
+ * 视图解析器的实现
+ * @date: 2017年9月17日
+ * @author: Nymph
  */
-public class NyViewResolver extends AbstractResolver implements ViewResolver {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NyViewResolver.class);
+public class ResolverViewImpl extends AbstractResolver implements ResolverView {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResolverViewImpl.class);
 	/** 
 	 * HttpBean的返回值后缀 
 	 */
@@ -24,7 +24,7 @@ public class NyViewResolver extends AbstractResolver implements ViewResolver {
 	/** 
 	 * 视图参数 
 	 */
-	private NyView nyView;
+	private ContextView contextView;
 	/**
 	 *  表示web层方法返回结果的类型 分下面四种
 	 */
@@ -52,14 +52,14 @@ public class NyViewResolver extends AbstractResolver implements ViewResolver {
 	 */
 	private static final int RESPONSE_TEXT = 5;
 	
-	public NyViewResolver(NyView nyView) {
-		super(nyView.getContext());
-		this.nyView = nyView;
+	public ResolverViewImpl(ContextView contextView) {
+		super(contextView.getContext());
+		this.contextView = contextView;
 	}
 	
 	@Override
 	public void resolver() throws Throwable {
-		String result = dispatchTypeHandle(nyView.getReturnResult());
+		String result = dispatchTypeHandle(contextView.getReturnResult());
 		
 		switch (typeCode) {
 		case REQUEST_FORWRAD:
@@ -89,11 +89,11 @@ public class NyViewResolver extends AbstractResolver implements ViewResolver {
 	@Override
 	public String dispatchTypeHandle(Object result) throws Exception {
 		// 返回json是进行的处理
-		if (nyView.getIsJSON()) {
+		if (contextView.getIsJSON()) {
 			// 目标方法的返回值是除基本类型和String的其他类型时会将这个对象解析成Json字符串
 			if (!(result instanceof String || result == null)) {
 				typeCode = RESPONSE_JSON;
-				return Jsons.resolve(result, nyView.getDateFormat());
+				return Jsons.resolve(result, contextView.getDateFormat());
 			}
 			// 当目标方法的返回值是String时不会解析成Json, 而是直接响应
 			typeCode = RESPONSE_TEXT;

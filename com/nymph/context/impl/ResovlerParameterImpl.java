@@ -18,11 +18,12 @@ import org.slf4j.LoggerFactory;
 import com.nymph.annotation.DateFmt;
 import com.nymph.annotation.JSON;
 import com.nymph.annotation.Request;
+import com.nymph.annotation.Serialize;
 import com.nymph.annotation.UrlHolder;
-import com.nymph.bean.web.HttpBeansContainer.HttpBean;
-import com.nymph.context.ParamResolver;
-import com.nymph.context.model.NyParam;
-import com.nymph.context.model.NyView;
+import com.nymph.bean.web.MapperInfoContainer.MapperInfo;
+import com.nymph.context.ContextParameter;
+import com.nymph.context.ContextView;
+import com.nymph.context.ResovlerParameter;
 import com.nymph.context.wrapper.MethodWrapper;
 import com.nymph.exception.PatternNoMatchException;
 import com.nymph.interceptor.NyInterceptors;
@@ -40,16 +41,12 @@ import com.nymph.utils.DateUtil;
  * @author LiangTianDong
  * @date 2017年10月7日下午8:21:40
  */
-public class NyParamResolver extends AbstractResolver implements ParamResolver {
-	private static final Logger LOGGER = LoggerFactory.getLogger(NyParamResolver.class);
-	/** 
-	 * 时间的格式字符串(yyyy-MM-dd)
-	 */
-	private String format;
+public class ResovlerParameterImpl extends AbstractResolver implements ResovlerParameter {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResovlerParameterImpl.class);
 	/** 
 	 * 将要解析的参数 
 	 */
-	private NyParam nyParam;
+	private ContextParameter contextParameter;
 	/** 
 	 * 请求中携带的所有参数 
 	 */
@@ -61,59 +58,65 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	/** 
 	 * 视图队列 
 	 */
-	private NyQueue<NyView> queue;
-	/** 
-	 * 是否停止执行解析方法并提交请求
+	private NyQueue<ContextView> queue;
+	/**
+	 * 当前方法是否被拦截
 	 */
-	private boolean isStop;
+	private boolean isIntercept;
 	/** 
 	 * resultSingle()方法的递归次数
 	 */
 	private int cycleNumber;
+	/** 
+	 * 时间的格式字符串(yyyy-MM-dd)
+	 */
+	private String format;
 
-	public NyParamResolver(NyParam nyParam, NyQueue<NyView> queue) {
-		super(nyParam.getContext());
+	public ResovlerParameterImpl(ContextParameter contextParameter, NyQueue<ContextView> queue) {
+		super(contextParameter.getContext());
 		this.queue = queue;
-		this.nyParam = nyParam;
-		this.paramMap = nyParam.getParams();
+		this.contextParameter = contextParameter;
+		this.paramMap = contextParameter.getParams();
 	}
-
 	/**
 	 * 查找url映射的类和方法
 	 * @throws Throwable
 	 */
 	@Override
 	public void resolver() throws Throwable {
-		// 获取HttpBean
-		HttpBean httpBean = nyParam.getHttpBean();
-		Object mapClass = beansFactory.getBean(httpBean.getName());
-		this.methodWrapper = new MethodWrapper(httpBean.getMethod());
+		// 获取MapperInfo
+		MapperInfo info = contextParameter.getMapperInfo();
+		Object httpBean = beansFactory.getBean(info.getName());
+		this.methodWrapper = new MethodWrapper(info.getMethod());
 		// 请求方式检查
 		checkRequestType();
-		// 已经注入完值的方法参数
-		Object[] args = methodParamsInjection();
-		// 代理类的执行返回结果
-		Object result = intercept(mapClass, args);
-		// 方法返回值检查
-		methodReturnCheck();
+		// --log
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("param name: {}", methodWrapper);
+		}
+		// 目标方法执行返回结果
+		Object result = invokeMethod(httpBean);
 		
-		if (isStop) {
+		// 方法返回值为void或者被拦截时, 提交当前请求并结束后续的代码执行
+		if(isIntercept || methodReturnCheck()) {
 			wrapper.commit();
 			return;
 		}
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("args: {}", Arrays.toString(args));
-			LOGGER.debug("param name: {}", methodWrapper);
+		
+		// 当方法被@Serialize注解标识时, 将返回值序列化到请求头中
+		if (methodWrapper.isAnnotationPresent(Serialize.class)) {
+			wrapper.sendObject(result);
+			wrapper.commit();
+			return;
 		}
-
 		// 被代理的目标方法是否想返回json数据
 		boolean isJson = methodWrapper.isAnnotationPresent(JSON.class);
 		// 将视图解析器需要的参数放入视图解析器队列
-		queue.put(new NyView(wrapper, result, format, isJson));
+		queue.put(new ContextView(wrapper, result, format, isJson));
 	}
 
 	@Override
-	public Object[] methodParamsInjection() throws Throwable {
+	public Object[] injectParameters() throws Throwable {
 		Object[] args = new Object[methodWrapper.getParamterLength()];
 
 		for (int i = 0; i < args.length; i++) {
@@ -136,15 +139,15 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 			} 
 			else if (paramType == Multipart.class) {
 				// 文件上传的类
-				args[i] = multipartCheck(nyParam.getMultipart());
+				args[i] = multipartCheck(contextParameter.getMultipart());
 			} 
 			else if (parameter.isAnnotationPresent(UrlHolder.class)) {
 				// 获取到方法参数内的@UrlHolder注解对象
 				UrlHolder urlVar = parameter.getAnnotation(UrlHolder.class);
 				// 在map中获取@UrlHolder value()方法中字符串对应的值
-				String string = nyParam.getPlaceHolder(paramName);
+				String string = contextParameter.getPlaceHolder(paramName);
 				if (string == null) {
-					string = nyParam.getPlaceHolder(urlVar.value());
+					string = contextParameter.getPlaceHolder(urlVar.value());
 				}
 				args[i] = BasicUtil.convert(paramType, string);
 			} 
@@ -184,24 +187,30 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	}
 	
 	@Override
-	public Object intercept(Object target, Object[] param) throws Throwable {
+	public Object invokeMethod(Object httpBean) throws Throwable {
 		// 拦截器链前置执行的方法
 		for (NyInterceptors preHandle : intercepts) {
 			if (!preHandle.preHandle(wrapper)) {
 				// 如果方法被拦截了就停止运行下面代码
-				LOGGER.info("请求被拦截, url: {}", wrapper.httpRequest().getRequestURL());
-				return isStop = true;
+				LOGGER.info("请求被拦截, url: {}", 
+					wrapper.httpRequest().getRequestURL());
+				return isIntercept = true;
 			}
 		}
 		try {
-			Object invoke = methodWrapper.invoke(target, param);
+			Object[] parameters = injectParameters();
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug(
+					"current method parameter: {}", Arrays.toString(parameters));
+			}
+			Object invoke = methodWrapper.invoke(httpBean, parameters);
 			// 拦截器链的后置执行方法
 			for (NyInterceptors beHandle : intercepts) {
 				beHandle.behindHandle(wrapper);
 			}
 			return invoke;
 		} catch (Throwable e) {
-			// catch  HttpBean的异常
+			// catch  httpBean的异常
 			Throwable cause = e.getCause();
 			throw cause == null ? e : cause;
 		}
@@ -209,7 +218,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 	
 	/**
 	 * 根据目标方法的类型，将请求中携带的参数封装成一个集合
-	 * @param type	HttpBean中的方法参数集合的泛型类型
+	 * @param type	httpBean中的方法参数集合的泛型类型
 	 * @return		
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -237,7 +246,7 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 
 	/**
 	 * 根据类型将请求中的参数封装成一个对象并返回
-	 * @param clazz	HttpBean中方法参数的类型
+	 * @param clazz	httpBean中方法参数的类型
 	 * @param index	用于resultList()方法标识索引位置
 	 * @return
 	 * @throws InstantiationException
@@ -307,10 +316,10 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 
 	/**
 	 * 方法的返回值检查, 为void时会直接提交请求
-	 * @param method
+	 * @return true or false
 	 */
-	private void methodReturnCheck() {
-		isStop = methodWrapper.getReturnType() == void.class;
+	private boolean methodReturnCheck() {
+		return methodWrapper.getReturnType() == void.class;
 	}
 
 	/**
@@ -344,5 +353,5 @@ public class NyParamResolver extends AbstractResolver implements ParamResolver {
 		if (annotation != null)
 			format = annotation.value();
 	}
-
+	
 }

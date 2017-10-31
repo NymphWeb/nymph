@@ -16,7 +16,7 @@ import com.nymph.annotation.Bean;
 import com.nymph.annotation.ConfigurationBean;
 import com.nymph.bean.BeansComponent;
 import com.nymph.bean.BeansHandler;
-import com.nymph.bean.web.HttpBeansContainer;
+import com.nymph.bean.web.MapperInfoContainer;
 import com.nymph.config.Configuration;
 import com.nymph.utils.AnnoUtil;
 import com.nymph.utils.BasicUtil;
@@ -27,12 +27,12 @@ import com.nymph.utils.JarUtil;
  * @author NYMPH
  * @date 2017年9月26日2017年9月26日
  */
-public class ScannerClasspathAndJar {
-	private static final Logger LOG = LoggerFactory.getLogger(ScannerClasspathAndJar.class);
+public class ScannerNymphBeans {
+	private static final Logger LOG = LoggerFactory.getLogger(ScannerNymphBeans.class);
 	// 存放bean的容器
 	private Map<String, Object> beansContainer;
 	// 处理http相关的bean映射信息
-	private HttpBeansContainer handler;
+	private MapperInfoContainer handler;
 	// 处理所有的bean对象
 	private BeansHandler beansHandler;
 	// bean组件
@@ -47,12 +47,12 @@ public class ScannerClasspathAndJar {
 			scanForJarPackages(configuration.getScanner());
 			scanForClassPathPackages(configuration.getScanner());
 		} catch (Exception e) {
-			LOG.error("bean扫描异常", e);
+			LOG.error("bean扫描异常, 请检查目标对象是否有空参数构造器", e);
 		}
 
 	}
 	
-	public ScannerClasspathAndJar(Map<String, Object> beansContainer, HttpBeansContainer handler,
+	public ScannerNymphBeans(Map<String, Object> beansContainer, MapperInfoContainer handler,
 								  BeansHandler beansHandler, BeansComponent beansComponent) {
 		this.handler = handler;
 		this.beansContainer = beansContainer;

@@ -3,7 +3,7 @@ package com.nymph.exception.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.nymph.context.wrapper.ContextWrapper;
+import com.nymph.context.ContextWrapper;
 import com.nymph.exception.NoSuchClassException;
 import com.nymph.exception.PatternNoMatchException;
 import com.nymph.exception.handle.ExceptionHandler;
