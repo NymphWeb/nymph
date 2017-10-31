@@ -3,7 +3,7 @@
 #### 配置文件
 ##### * 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
-###### nymph-demo.yml配置文件（注意缩进）
+###### nymph-demo.yml配置文件
 ```yml
 webConfig: #注意层次 每个子的配置用一个空格或者tab缩进
   port: 9900 #内嵌tomcat可以在此设置端口号。对读取 web.xml的tomcat来说这项配置没用, 只能自己去server.xml配置
@@ -96,7 +96,7 @@ public class HelloWorld {
 
 #### 通过HttpChannel获取HttpBean发出的序列化对象
 ```java
-@HTTP("/serializable")
+@HTTP("/demo")
 public class HttpTest {
 
 	// 关于序列化对象的传输
