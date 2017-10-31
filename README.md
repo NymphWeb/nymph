@@ -71,7 +71,7 @@ public class HelloWorld {
 	}
 
 	// 只允许Post请求访问此方法, @JSON表示返回的对象会被转换为json字符串响应到页面
-	@POST("/no/@test")
+	@POST("/no")
 	@JSON
 	public Man test2() {
 		return man;
@@ -99,13 +99,14 @@ public class HelloWorld {
 @HTTP("/serializable")
 public class HttpTest {
 
-	// 序列化对象的传输
+	// 关于序列化对象的传输
 	@GET("/class")
-	public void test3(Share share) {
+	@Serialize
+	public Man test3(Share share) {
 		// 发送一个序列化对象
 		Man man = new Man();
 		man.setName("张学友");
-		share.shareObject(man);
+		return man;
 	}
 	
 	public static void main(String[] args) {
@@ -115,10 +116,10 @@ public class HttpTest {
 
 public class Test {
 	public static void main(String[] args) {
-		HttpSocket socket = new HttpSocket("192.168.2.000", 8080);
-		Man man = (Man)socket.getObject("/serializable/class", "GET");
+		HttpSocket socket = new HttpSocket("192.168.2.000", 9900);
+		Man man = (Man)socket.getObject("/serializable/class", Method.GET);
 		System.out/println(man.getName);
-		// 此处man的name应该为 "张学友"
+		// 此处man的name为 "张学友"
 		
 		// 只使用一次的时候应该关掉socket连接
 		socket.close();
