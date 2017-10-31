@@ -1,7 +1,7 @@
 # Quick Start
 
 #### 配置文件
-##### 默认加载classpath下的所有nymph开头的xml或者yml配置文件
+##### * 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
 ###### yml配置文件（注意缩进）
 ```yml
@@ -60,7 +60,7 @@ public class HelloWorld {
 	// 自动注入Man的实例, 如果容器中存在
 	private @Injection Man man;
 
-	// 只允许get请求访问此方法 @UrlHolder表示url上声明的变量@test
+	// 只允许Get请求访问此方法 @UrlHolder表示url上声明的变量@test
 	@GET("/yes/@test")
 	public String test(@UrlHolder("test") String field, Transfer transfer) {
 		// transfer是内置的类， 用来将数据存到servlet的各作用域(request, session)
@@ -70,7 +70,7 @@ public class HelloWorld {
 		return "/index";
 	}
 
-	// 只允许get请求访问此方法, @JSON表示返回的值为json格式
+	// 只允许Post请求访问此方法, @JSON表示返回的对象会被转换为json字符串响应到页面
 	@POST("/no/@test")
 	@JSON
 	public Man test2() {
@@ -88,7 +88,7 @@ public class HelloWorld {
 	
 
 	// 内嵌tomcat的形式启动应用
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) {
 		MainStarter.start(HelloWorld.class);
 	}
 }
@@ -106,6 +106,10 @@ public class HttpTest {
 		Man man = new Man();
 		man.setName("张学友");
 		share.shareObject(man);
+	}
+	
+	public static void main(String[] args) {
+		MainStarter.start(HttpTest.class);
 	}
 }
 
