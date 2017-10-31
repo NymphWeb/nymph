@@ -116,13 +116,13 @@ public class HttpTest {
 
 public class Test {
 	public static void main(String[] args) {
-		HttpChannel socket = new HttpChannel("192.168.2.000", 9900);
-		Man man = (Man)socket.getObject("/serializable/class", Method.GET);
-		System.out/println(man.getName);
+		HttpChannel channel = new HttpChannel("127.0.0.1", 9900);
+		Man man = (Man)channel.getObject("/demo/class", Pattern.GET);
+		System.out.println(man.getName());
 		// 此处man的name为 "张学友"
 		
 		// 只使用一次的时候应该关掉socket连接
-		socket.close();
+		channel.close();
 	}
 }
 ```
