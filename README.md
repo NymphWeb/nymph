@@ -3,7 +3,7 @@
 #### 配置文件
 ##### * 默认加载classpath下的所有nymph开头的xml或者yml配置文件
 
-###### yml配置文件（注意缩进）
+###### nymph-demo.yml配置文件（注意缩进）
 ```yml
 webConfig: #注意层次 每个子的配置用一个空格或者tab缩进
   port: 9900 #内嵌tomcat可以在此设置端口号。对读取 web.xml的tomcat来说这项配置没用, 只能自己去server.xml配置
@@ -26,7 +26,7 @@ component: #将给出的类交给容器管理
   - com.nymph.bean.Woman
   - com.nymph.bean.Man
 ```
-###### xml配置文件
+###### nymph-demo.xml配置文件
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <nymph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -94,7 +94,7 @@ public class HelloWorld {
 }
 ```
 
-#### 通过HttpSocket获取HttpBean发出的序列化对象
+#### 通过HttpChannel获取HttpBean发出的序列化对象
 ```java
 @HTTP("/serializable")
 public class HttpTest {
@@ -116,7 +116,7 @@ public class HttpTest {
 
 public class Test {
 	public static void main(String[] args) {
-		HttpSocket socket = new HttpSocket("192.168.2.000", 9900);
+		HttpChannel socket = new HttpChannel("192.168.2.000", 9900);
 		Man man = (Man)socket.getObject("/serializable/class", Method.GET);
 		System.out/println(man.getName);
 		// 此处man的name为 "张学友"
