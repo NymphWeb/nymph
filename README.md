@@ -99,10 +99,10 @@ public class HelloWorld {
 @HTTP("/demo")
 public class HttpTest {
 
-	// 关于序列化对象的传输
+	// 关于序列化对象的传输 @Serialize注解表示返回的对象将被序列化到响应头中（返回的对象需要实现Serializable接口）
 	@GET("/class")
 	@Serialize
-	public Man test3(Share share) {
+	public Man test3() {
 		// 发送一个序列化对象
 		Man man = new Man();
 		man.setName("张学友");
