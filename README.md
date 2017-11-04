@@ -128,9 +128,6 @@ public class Test {
 		Man man = (Man)channel.getObject("/demo/class", Pattern.GET);
 		System.out.println(man.getName());
 		// 此处man的name为 "张学友"
-		
-		// 只使用一次的时候应该关掉socket连接
-		channel.close();
 	}
 }
 ```
