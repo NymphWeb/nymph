@@ -77,7 +77,7 @@ public class HelloWorld {
 		return man;
 	}
 	
-	// 文件上传的处理
+	// 文件上传
 	@GET("/upload")
 	public void test5(Multipart multipart) throws IOException {
 		// file表示页面input标签的name
@@ -86,6 +86,11 @@ public class HelloWorld {
 		fileInf.writeTo("c:/data/demo.jpg");
 	}
 	
+	// 文件下载
+	@GET("/downloads")
+	public void test6(Share share) {
+		share.shareFile("C:/hello.jpg");
+	}
 
 	// 内嵌tomcat的形式启动应用
 	public static void main(String[] args) {
