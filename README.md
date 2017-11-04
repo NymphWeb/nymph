@@ -61,7 +61,7 @@ public class HelloWorld {
 	private @Injection Man man;
 
 	// 只允许Get请求访问此方法 @UrlHolder表示url上声明的变量@test
-	@GET("/yes/@test")
+	@GET("/get/@test")
 	public String test(@UrlHolder("test") String field, Transfer transfer) {
 		// transfer是内置的类， 用来将数据存到servlet的各作用域(request, session)
 		transfer.ofRequest("q", man);
@@ -71,15 +71,16 @@ public class HelloWorld {
 	}
 
 	// 只允许Post请求访问此方法, @JSON表示返回的对象会被转换为json字符串响应到页面
-	@POST("/no")
+	@POST("/post/@test")
 	@JSON
-	public Man test2() {
+	public Man test2(@UrlHolder String test) {
+		System.out.println(test);
 		return man;
 	}
 	
 	// 文件上传
 	@GET("/upload")
-	public void test5(Multipart multipart) throws IOException {
+	public void test3(Multipart multipart) throws IOException {
 		// file表示页面input标签的name
 		FileInf fileInf = multipart.getFileInf("file");
 		// 将文件写入指定的位置
@@ -88,7 +89,7 @@ public class HelloWorld {
 	
 	// 文件下载
 	@GET("/downloads")
-	public void test6(Share share) {
+	public void test4(Share share) {
 		share.shareFile("C:/hello.jpg");
 	}
 
@@ -101,13 +102,14 @@ public class HelloWorld {
 
 #### 通过HttpChannel获取HttpBean发出的序列化对象
 ```java
+// 服务端
 @HTTP("/demo")
 public class HttpTest {
 
 	// 关于序列化对象的传输 @Serialize注解表示返回的对象将被序列化到响应头中（返回的对象需要实现Serializable接口）
 	@GET("/class")
 	@Serialize
-	public Man test3() {
+	public Man test() {
 		// 发送一个序列化对象
 		Man man = new Man();
 		man.setName("张学友");
@@ -119,6 +121,7 @@ public class HttpTest {
 	}
 }
 
+// 客户端
 public class Test {
 	public static void main(String[] args) {
 		HttpChannel channel = new HttpChannel("127.0.0.1", 9900);
