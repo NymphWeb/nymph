@@ -141,7 +141,7 @@ public final class ContextWrapper {
 	public void forward(String location) {
 		try {
 			request.getRequestDispatcher(location).forward(request, response);
-		} catch (ServletException | IOException e) {
+		} catch (Exception e) {
 			LOGGER.error(null, e);
 		}
 	}

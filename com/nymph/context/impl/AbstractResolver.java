@@ -2,6 +2,7 @@ package com.nymph.context.impl;
 
 import java.util.List;
 
+import com.nymph.bean.web.DefaultWebApplicationBeansFactory;
 import com.nymph.bean.web.WebApplicationBeansFactory;
 import com.nymph.config.Configuration;
 import com.nymph.context.ContextWrapper;
@@ -19,7 +20,7 @@ public abstract class AbstractResolver implements Resolver {
 	/**
 	 *  bean工厂
 	 */
-	protected static WebApplicationBeansFactory beansFactory;
+	protected static WebApplicationBeansFactory beansFactory = new DefaultWebApplicationBeansFactory();
 	/**
 	 *  拦截器链, 可以通过实现NyInterceptors接口来拦截请求
 	 */

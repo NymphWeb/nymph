@@ -38,7 +38,7 @@ public class Configuration {
 	public void setScanner(List<String> scanner) {
 		this.scanner = scanner;
 	}
-	
+
 	public List<Object> getComponent() {
 		return component == null ? Collections.emptyList() : component;
 	}
@@ -54,14 +54,6 @@ public class Configuration {
 		} else {
 			component.addAll(configuration.getComponent());
 		}
-		
-		if (scanner == null) {
-			scanner = new ArrayList<>();
-			scanner.addAll(configuration.getScanner());
-		} else {
-			scanner.addAll(configuration.getScanner());
-		}
-		
 	}
 	
 }

@@ -1,17 +1,15 @@
 package com.nymph.context.impl;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.nymph.context.method.Dynamics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,7 @@ import com.nymph.bean.web.MapperInfoContainer.MapperInfo;
 import com.nymph.context.ContextParameter;
 import com.nymph.context.ContextView;
 import com.nymph.context.ResovlerParameter;
-import com.nymph.context.wrapper.MethodWrapper;
+import com.nymph.context.method.WrapperMethod;
 import com.nymph.exception.PatternNoMatchException;
 import com.nymph.interceptor.NyInterceptors;
 import com.nymph.queue.NyQueue;
@@ -54,11 +52,19 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	/** 
 	 * Method的包装类 
 	 */
-	private MethodWrapper methodWrapper;
+	private WrapperMethod methodWrapper;
 	/** 
 	 * 视图队列 
 	 */
 	private NyQueue<ContextView> queue;
+	/**
+	 * httpBean的实例
+	 */
+	private Object httpBean;
+	/**
+	 * httpBean的方法返回值
+	 */
+	private Object result;
 	/**
 	 * 当前方法是否被拦截
 	 */
@@ -68,7 +74,7 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	 */
 	private int cycleNumber;
 	/** 
-	 * 时间的格式字符串(yyyy-MM-dd)
+	 * 时间的格式字符串
 	 */
 	private String format;
 
@@ -76,7 +82,6 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 		super(contextParameter.getContext());
 		this.queue = queue;
 		this.contextParameter = contextParameter;
-		this.paramMap = contextParameter.getParams();
 	}
 	/**
 	 * 查找url映射的类和方法
@@ -84,31 +89,18 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	 */
 	@Override
 	public void resolver() throws Throwable {
-		// 获取MapperInfo
 		MapperInfo info = contextParameter.getMapperInfo();
-		Object httpBean = beansFactory.getBean(info.getName());
-		this.methodWrapper = new MethodWrapper(info.getMethod());
+		this.httpBean = beansFactory.getBean(info.getName());
+		this.methodWrapper = new WrapperMethod(info.getMethod());
+		this.paramMap = contextParameter.getParams();
 		// 请求方式检查
 		checkRequestType();
-		// --log
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("param name: {}", methodWrapper);
-		}
+		// 注入值后的形参列表
+		Object[] agrs = injectParameters();
 		// 目标方法执行返回结果
-		Object result = invokeMethod(httpBean);
-		
-		// 方法返回值为void或者被拦截时, 提交当前请求并结束后续的代码执行
-		if(isIntercept || methodReturnCheck()) {
-			wrapper.commit();
-			return;
-		}
-		
-		// 当方法被@Serialize注解标识时, 将返回值序列化到请求头中
-		if (methodWrapper.isAnnotationPresent(Serialize.class)) {
-			wrapper.sendObject(result);
-			wrapper.commit();
-			return;
-		}
+		this.result = invokeMethod(agrs);
+		// 判断是否应该停止解析
+		if (stopController()) return;
 		// 被代理的目标方法是否想返回json数据
 		boolean isJson = methodWrapper.isAnnotationPresent(JSON.class);
 		// 将视图解析器需要的参数放入视图解析器队列
@@ -119,7 +111,7 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	public Object[] injectParameters() throws Throwable {
 		Object[] args = new Object[methodWrapper.getParamterLength()];
 
-		for (int i = 0; i < args.length; i++) {
+		for (int i = 1; i < args.length; i++) {
 			// 当前方法参数的名称
 			String paramName = methodWrapper.getParameterName(i);
 			// 在请求参数中寻找和当前方法形参名相同的对应的参数值
@@ -187,7 +179,7 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	}
 	
 	@Override
-	public Object invokeMethod(Object httpBean) throws Throwable {
+	public Object invokeMethod(Object[] args) throws Throwable {
 		// 拦截器链前置执行的方法
 		for (NyInterceptors preHandle : intercepts) {
 			if (!preHandle.preHandle(wrapper)) {
@@ -198,12 +190,11 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 			}
 		}
 		try {
-			Object[] parameters = injectParameters();
+			Object invoke = methodWrapper.invoke(httpBean, args);
 			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug(
-					"current method parameter: {}", Arrays.toString(parameters));
+				LOGGER.debug("parameter name: {}", methodWrapper);
+				LOGGER.debug("parameter value: {}", Arrays.toString(args));
 			}
-			Object invoke = methodWrapper.invoke(httpBean, parameters);
 			// 拦截器链的后置执行方法
 			for (NyInterceptors beHandle : intercepts) {
 				beHandle.behindHandle(wrapper);
@@ -220,8 +211,7 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	 * 根据目标方法的类型，将请求中携带的参数封装成一个集合
 	 * @param type	httpBean中的方法参数集合的泛型类型
 	 * @return		
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
+	 * @throws Exception
 	 */
 	private List<?> resultList(Type type) throws Exception {
 		
@@ -249,8 +239,7 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	 * @param clazz	httpBean中方法参数的类型
 	 * @param index	用于resultList()方法标识索引位置
 	 * @return
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
+	 * @throws Exception
 	 */
 	private Object resultSingle(Class<?> clazz, int index) throws Exception {
 		if (cycleNumber >= 10) {
@@ -275,9 +264,8 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 			
 			String param = vals[index];
 			
-			if (BasicUtil.isCommonType(field)) {
+			if (BasicUtil.isCommonType(field))
 				field.set(instance, BasicUtil.convert(field, param));
-			}
 			else if (field.getType() == Date.class) {
 				dateFormatCheck(format);
 				Date date = DateUtil.resolve(param, format);
@@ -288,6 +276,27 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 			}
 		}
 		return instance;
+	}
+
+	/**
+	 * 方法的停止控制一般情况是拦截器拦截, 方法返回值为void时停止执行解析方法
+	 * @return	true or false
+	 * @throws IOException
+	 */
+	private boolean stopController() throws IOException {
+		// 方法返回值为void或者被拦截时, 提交当前请求并结束后续的代码执行
+		if(isIntercept || methodReturnCheck()) {
+			wrapper.commit();
+			return true;
+		}
+
+		// 当方法被@Serialize注解标识时, 将返回值序列化到请求头中
+		if (methodWrapper.isAnnotationPresent(Serialize.class)) {
+			wrapper.sendObject(result);
+			wrapper.commit();
+			return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -302,7 +311,6 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 	
 	/**
 	 * 请求方式检查, 浏览器的请求方式和目标方法要求的请求方式不匹配时抛出异常
-	 * @param method  被检查的方法
 	 */
 	private void checkRequestType() {
 		String reqType = wrapper.httpRequest().getMethod();
@@ -353,5 +361,5 @@ public class ResovlerParameterImpl extends AbstractResolver implements ResovlerP
 		if (annotation != null)
 			format = annotation.value();
 	}
-	
+
 }

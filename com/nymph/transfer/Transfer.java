@@ -12,10 +12,10 @@ import com.nymph.context.ContextWrapper;
  */
 public class Transfer {
 	/** 异步请求对象*/
-	private final ContextWrapper async;
+	private final ContextWrapper wrapper;
 	
-	public Transfer(ContextWrapper async) {
-		this.async = async;
+	public Transfer(ContextWrapper wrapper) {
+		this.wrapper = wrapper;
 	}
 	/**
 	 * 将参数绑定到request中
@@ -23,7 +23,7 @@ public class Transfer {
 	 * @param value	参数的值
 	 */
 	public void ofRequest(String name, Object value) {
-		async.httpRequest().setAttribute(name, value);
+		getRequest().setAttribute(name, value);
 	}
 	/**
 	 * 将参数绑定到session中
@@ -31,26 +31,24 @@ public class Transfer {
 	 * @param value	参数的值
 	 */
 	public void ofSession(String name, Object value) {
-		HttpServletRequest request = async.httpRequest();
-		request.getSession().setAttribute(name, value);
+		getSession().setAttribute(name, value);
 	}
 	/**
 	 * 注销session
 	 */
 	public void invalidSession() {
-		HttpServletRequest request = async.httpRequest();
-		request.getSession().invalidate();
+		getSession().invalidate();
 	}
 	
 	public HttpServletRequest getRequest() {
-		return async.httpRequest();
+		return wrapper.httpRequest();
 	}
 	
 	public HttpServletResponse getResponse() {
-		return async.httpResponse();
+		return wrapper.httpResponse();
 	}
 	
 	public HttpSession getSession() {
-		return async.httpRequest().getSession();
+		return wrapper.httpRequest().getSession();
 	}
 }

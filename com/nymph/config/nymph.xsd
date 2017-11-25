@@ -5,17 +5,6 @@
 	<element name="nymph" >
 		<complexType>
 			<sequence>
-				<element name="scanners" minOccurs="0" >
-					<complexType>
-						<sequence>
-							<element name="scanner" maxOccurs="unbounded">
-								<complexType>
-									<attribute name="location" type="string" use="required" />
-								</complexType>
-							</element>
-						</sequence>
-					</complexType>
-				</element>
 				<element name="webConfig" minOccurs="0">
 					<complexType>
 						<all>

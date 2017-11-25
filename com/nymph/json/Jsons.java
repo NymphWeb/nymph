@@ -15,34 +15,7 @@ import com.nymph.utils.DateUtil;
  * @author liuYang
  * @author liangTianDong
  */
-public abstract class Jsons {
-
-	/**
-	 * 将一个对象解析成json字符串, 并且将其中的Date转换成指定的格式
-	 * @param object		被转换的对象
-	 * @param Dateformat	时间格式(yyyy-MM-dd)
-	 * @return				json字符串
-	 */
-	@SuppressWarnings("unchecked")
-	public static String resolve(Object object, String Dateformat) {
-		AtomicInteger integer = new AtomicInteger(0);
-		try {
-			if (object instanceof String)
-				return object.toString();
-			if (object instanceof Collection) {
-				return collectionToJson((Collection<?>) object, Dateformat, integer);
-			} else if (object instanceof Map) {
-				return mapToJson((Map<String, String>) object);
-			} else {
-				return commonToJson(object, Dateformat, integer);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			return "null";
-		} finally {
-			cycleController(integer);
-		}
-	}
+public abstract class JSONs {
 
 	/**
 	 * 将一个对象解析成json字符串
@@ -53,8 +26,34 @@ public abstract class Jsons {
 		return resolve(object, null);
 	}
 
+	/**
+	 * 将一个对象解析成json字符串, 并且将其中的Date转换成指定的格式
+	 * @param object		被转换的对象
+	 * @param dateformat	时间格式(yyyy-MM-dd)
+	 * @return				json字符串
+	 */
+	@SuppressWarnings("unchecked")
+	public static String resolve(Object object, String dateformat) {
+		AtomicInteger integer = new AtomicInteger(0);
+		try {
+			if (object instanceof String)
+				return object.toString();
+			if (object instanceof Collection) {
+				return collectionToJson((Collection<?>) object, dateformat, integer);
+			} else if (object instanceof Map) {
+				return mapToJson((Map<String, String>) object);
+			} else {
+				return commonToJson(object, dateformat, integer);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "null";
+		} finally {
+			cycleController(integer);
+		}
+	}
 
-	private static String commonToJson(Object json, String Dateformat, AtomicInteger integer) throws Exception {
+	private static String commonToJson(Object json, String dateformat, AtomicInteger integer) throws Exception {
 		if (integer.incrementAndGet() >= 10)
 			return null;
 
@@ -85,8 +84,8 @@ public abstract class Jsons {
 			} else if (Date.class == field.getType()) {
 				String resolve = null;
 				Date date = (Date) field.get(json);
-				if (Dateformat != null) {
-					resolve = DateUtil.resolve(date, Dateformat);
+				if (dateformat != null) {
+					resolve = DateUtil.resolve(date, dateformat);
 				} else {
 					resolve = String.valueOf(date);
 				}
@@ -96,22 +95,22 @@ public abstract class Jsons {
 				jsons.append("\"" + field.get(json) + "\"");
 
 			} else if (Collection.class.isAssignableFrom(field.getType())) {
-				jsons.append(collectionToJson((Collection<?>) field.get(json), Dateformat, integer));
+				jsons.append(collectionToJson((Collection<?>) field.get(json), dateformat, integer));
 
 			} else {
-				jsons.append(commonToJson(field.get(json), Dateformat, integer));
+				jsons.append(commonToJson(field.get(json), dateformat, integer));
 			}
 		}
 		return jsons.delete(1, 2).append("}").toString();
 	}
 
-	private static String collectionToJson(Collection<?> coll, String Dateformat, AtomicInteger integer) throws Exception {
+	private static String collectionToJson(Collection<?> coll, String dateformat, AtomicInteger integer) throws Exception {
 		if (integer.incrementAndGet() >= 10)
 			return null;
 
 		StringBuilder jsons = new StringBuilder("[");
 		for (Object object : coll) {
-			jsons.append(",").append(commonToJson(object, Dateformat, integer));
+			jsons.append(",").append(commonToJson(object, dateformat, integer));
 		}
 		return jsons.delete(1, 2).append("]").toString();
 	}

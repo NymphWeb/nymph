@@ -14,7 +14,6 @@ import java.lang.annotation.Target;
  */
 @Retention(RUNTIME)
 @Target(PARAMETER)
-@Inherited
 public @interface UrlHolder {
 
 	/**

@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import com.nymph.context.ContextView;
 import com.nymph.context.ResolverView;
-import com.nymph.json.Jsons;
+import com.nymph.json.JSONs;
 /**
  * 视图解析器的实现
  * @date: 2017年9月17日
@@ -80,9 +80,8 @@ public class ResolverViewImpl extends AbstractResolver implements ResolverView {
 		default:
 			LOGGER.error("未知的转发方式");
 		}
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("ViewResolver result: typeCode[{}] - {}", typeCode, result);
-		}
+		if (LOGGER.isDebugEnabled())
+			LOGGER.debug("View result: typeCode[{}] - {}", typeCode, result);
 		wrapper.commit();
 	}
 	
@@ -93,7 +92,7 @@ public class ResolverViewImpl extends AbstractResolver implements ResolverView {
 			// 目标方法的返回值是除基本类型和String的其他类型时会将这个对象解析成Json字符串
 			if (!(result instanceof String || result == null)) {
 				typeCode = RESPONSE_JSON;
-				return Jsons.resolve(result, contextView.getDateFormat());
+				return JSONs.resolve(result, contextView.getDateFormat());
 			}
 			// 当目标方法的返回值是String时不会解析成Json, 而是直接响应
 			typeCode = RESPONSE_TEXT;

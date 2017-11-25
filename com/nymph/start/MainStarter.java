@@ -18,7 +18,6 @@ import org.apache.catalina.startup.Tomcat.FixContextListener;
 import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
-import com.nymph.annotation.ConfPosition;
 import com.nymph.bean.BeansHandler;
 import com.nymph.bean.web.DefaultWebApplicationBeansFactory;
 import com.nymph.config.ConfRead;
@@ -55,8 +54,7 @@ public class MainStarter extends WebApplicationContext {
 	 */
 	private void load(Class<?> clazz) throws Exception {
 		// 初始化配置
-		ConfPosition conf = clazz.getAnnotation(ConfPosition.class);
-		initConfiguration(conf);
+		initConfiguration(clazz);
 		// 初始化bean工厂
 		initBeansFactory();
 
@@ -103,13 +101,26 @@ public class MainStarter extends WebApplicationContext {
 	
 	/**
 	 * 初始化配置
-	 * @param conf
+	 * @param clazz
 	 */
-	protected void initConfiguration(ConfPosition conf) {
-		if (conf == null) {
+	protected void initConfiguration(Class<?> clazz) {
+		NymphStarter starter = clazz.getAnnotation(NymphStarter.class);
+		if (starter == null) {
+			throw new IllegalArgumentException("Starter class require use @NymphStarter annotation");
+		}
+		String[] configurations = starter.configurations();
+		String[] packageScanner = starter.packageScanner();
+
+		if (configurations.length == 0) {
 			configuration = ConfRead.readConf(defaultConf());
 		} else {
-			configuration = ConfRead.readConf(conf.value());
+			configuration = ConfRead.readConf(configurations);
+		}
+
+		if (packageScanner.length == 0) {
+			configuration.setScanner(Arrays.asList(clazz.getPackage().getName()));
+		} else {
+			configuration.setScanner(Arrays.asList(packageScanner));
 		}
 	}
 	

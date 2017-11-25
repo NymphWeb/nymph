@@ -15,9 +15,9 @@ public interface ResovlerParameter extends Resolver {
 	Object[] injectParameters() throws Throwable;
 	/**
 	 * 执行Http请求所映射的方法
-	 * @param httpBean 		方法所在的HttpBean
+	 * @param args			被invoke方法的参数
 	 * @return 				被代理的方法的返回值
 	 * @throws Throwable	HttpBean的异常
 	 */
-	Object invokeMethod(Object httpBean) throws Throwable;
+	Object invokeMethod(Object[] args) throws Throwable;
 }

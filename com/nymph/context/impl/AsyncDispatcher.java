@@ -39,9 +39,9 @@ import com.nymph.utils.PoolUtil;
 public final class AsyncDispatcher extends HttpServlet implements Runnable {
 	private static final long serialVersionUID = 1L;
 	// 执行队列的线程池
-	private final ExecutorService contextPool = PoolUtil.cacheThredPool();
-	private final ExecutorService paramPool = PoolUtil.cacheThredPool();
-	private final ExecutorService viewPool = PoolUtil.cacheThredPool();
+	private final ExecutorService contextPool = PoolUtil.cacheThreadPool();
+	private final ExecutorService paramPool = PoolUtil.cacheThreadPool();
+	private final ExecutorService viewPool = PoolUtil.cacheThreadPool();
 	// context队列
 	private final NyQueue<ContextWrapper> contexts = new NyQueue<>();
 	// 参数队列
@@ -114,7 +114,7 @@ public final class AsyncDispatcher extends HttpServlet implements Runnable {
 	@Override
 	public void run() {
 		String name = Thread.currentThread().getName();
-		
+
 		if ("PARAM".equals(name)) {
 			while (true) {
 				try {
@@ -136,6 +136,6 @@ public final class AsyncDispatcher extends HttpServlet implements Runnable {
 				} catch (Throwable e) {}
 			}
 		}
-		
+
 	}
 }

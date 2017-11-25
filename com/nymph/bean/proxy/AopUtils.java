@@ -1,8 +1,6 @@
 package com.nymph.bean.proxy;
 
 import com.nymph.utils.BasicUtil;
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
@@ -13,32 +11,6 @@ import java.lang.reflect.Proxy;
  * @date 2017年10月4日下午7:58:17
  */
 public abstract class AopUtils {
-
-	/**
-	 * cglib的动态代理
-	 * @param target	被代理对象的Class
-	 * @param callback	cglib的方法拦截器
-	 * @return			代理后的对象
-	 */
-	public static Object getProxy(Class<?> target, MethodInterceptor callback) {
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(target);
-		enhancer.setCallback(callback);
-		return enhancer.create();
-	}
-
-	/**
-	 * cglib的动态代理
-	 * @param target	被代理的对象
-	 * @param callback	cglib的方法拦截器
-	 * @return			代理后的对象
-	 */
-	public static Object getProxy(Object target, MethodInterceptor callback) {
-		Enhancer enhancer = new Enhancer();
-		enhancer.setSuperclass(target.getClass());
-		enhancer.setCallback(callback);
-		return enhancer.create();
-	}
 
 	/**
 	 * 获取代理对象, jdk的代理对象只能强转成父类才能正常使用, 所以他必须实现一个接口

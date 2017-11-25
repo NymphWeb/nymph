@@ -97,7 +97,7 @@ public class ScannerNymphBeans {
 			throws IllegalAccessException, ClassNotFoundException {
 		
 		for (Object component : components) {
-			Class<?> aClass = null;
+			Class<?> aClass;
 			if (component instanceof String) {
 				aClass = Class.forName(String.valueOf(component));
 				interfaceCheck(aClass);

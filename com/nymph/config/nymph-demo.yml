@@ -10,11 +10,6 @@ webConfig: #注意层次 每个子的配置用一个空格或者tab缩进
    - '*.jpg'
   filters:
    - com.nymph.filter.TestFilter@*.do # @后面的表示拦截的urlPattern 不设置的话默认是/* 拦截所有
-  #异常处理器配置 配置的类需要实现ExceptionHandler接口
-  exceptionHandler: com.nymph.exception.impl.ExceptionHandlerImpl
-  
-scanner: #使用了@Beans @HTTP 相关注解的必须得配置这个, 让容器能扫描到你的类
-  - com.nymph.web
 component: #将给出的类交给容器管理
   - com.nymph.bean.Woman
   - com.nymph.bean.Man

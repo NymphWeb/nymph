@@ -29,7 +29,7 @@ import com.nymph.utils.StrUtil;
 public class ResolverUrlImpl extends AbstractResolver implements ResovlerUrl {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResolverUrlImpl.class);
 	/**
-	 *  httpbean的容器
+	 *  MapperInfo的容器
 	 */
 	private static MapperInfoContainer container = beansFactory.getHttpBeansContainer();
 	/**
@@ -73,7 +73,7 @@ public class ResolverUrlImpl extends AbstractResolver implements ResovlerUrl {
 		out: for (Entry<String, MapperInfo> kv : container.getAllMapperInfo()) {
 			// 浏览器请求的地址
 			String[] requestUrls = url.split("/");
-			// httpBean中保存的地址
+			// MapperInfo中保存的地址
 			String[] nativeUrls = kv.getKey().split("/");
 			
 			if (requestUrls.length == nativeUrls.length) {
@@ -131,8 +131,7 @@ public class ResolverUrlImpl extends AbstractResolver implements ResovlerUrl {
 	
 	/**
 	 * 判断请求的Content-Type
-	 * @param request		当前请求
-	 * @return				表示请求中所有参数的map
+	 * @return 				表示请求中所有参数的map
 	 * @throws Exception	multipartHandler方法抛出的异常
 	 */
 	private Map<String, String[]> judgeContentType() throws Exception {
@@ -145,8 +144,7 @@ public class ResolverUrlImpl extends AbstractResolver implements ResovlerUrl {
 	
 	/**
 	 * url映射检查, 如果匹配不到任何对象则抛出异常
-	 * @param mapperInfo	匹配到的mapperinfo对象
-	 * @param url			浏览器请求的url
+	 * @param mapperInfo	匹配到的MapperInfo对象
 	 */
 	private void urlMappingResloverCheck(MapperInfo mapperInfo) {
 		if (mapperInfo == null) {

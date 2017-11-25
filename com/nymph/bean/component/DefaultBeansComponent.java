@@ -42,7 +42,7 @@ public class DefaultBeansComponent implements BeansComponent {
 	@Override
 	public void filter(Object bean) {
 		Class<?> beanClass = bean.getClass();
-		if (isIntercept(beanClass)) {
+		if (beanClass.isAnnotationPresent(EnableInterceptor.class)) {
 			interceptors.add((NyInterceptors)bean);
 			return;
 		}
@@ -52,10 +52,6 @@ public class DefaultBeansComponent implements BeansComponent {
 		if (anno != null) {
 			components.put(anno, bean);
 		}
-	}
-
-	private boolean isIntercept(Class<?> bean) {
-		return bean.isAnnotationPresent(EnableInterceptor.class);
 	}
 
 }

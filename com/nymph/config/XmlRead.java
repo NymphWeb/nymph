@@ -48,17 +48,7 @@ public final class XmlRead {
 	public static Configuration read(Element element) throws Exception {
 		
 		Configuration configuration = new Configuration();
-		
-		// 扫描bean的路径
-		Element scannerNode = element.element("scanners");
-		if (scannerNode != null) {
-			List<Element> list = scannerNode.elements();
-			List<String> collect2 = list.stream()
-				.map(ele -> ele.attribute("location").getValue())
-				.collect(Collectors.toList());
-			configuration.setScanner(collect2);
-		}
-		
+
 		// 组件
 		List<Element> components = element.elements("component");
 		List<Object> component = COMPONENTS.component(components);
@@ -72,8 +62,8 @@ public final class XmlRead {
 		if (webNode != null) {
 			WebConfig webConfig = new WebConfig();
 			// 存放jsp文件的目录
-			Element webapp = webNode.element("webapp");
-			webConfig.setWebappPath(attrValue(webapp));
+			Element webRoot = webNode.element("webRoot");
+			webConfig.setWebappPath(attrValue(webRoot));
 			// 端口号
 			Element port = webNode.element("port");
 			webConfig.setPort(Integer.parseInt(attrValue(port)));
@@ -116,9 +106,9 @@ public final class XmlRead {
 			}
 			
 			// 放行的资源
-			Element exclutionNode = webNode.element("exclutions");
-			if (exclutionNode != null) {
-				List<Element> list = exclutionNode.elements("exclution");
+			Element exclutionsNode = webNode.element("exclutions");
+			if (exclutionsNode != null) {
+				List<Element> list = exclutionsNode.elements("exclution");
 				List<String> exclutions = list.stream()
 					.map(ele -> ele.attribute("value").getValue())
 					.collect(Collectors.toList());

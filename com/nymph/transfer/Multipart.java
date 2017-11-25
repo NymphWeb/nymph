@@ -2,8 +2,8 @@ package com.nymph.transfer;
 
 import com.nymph.utils.BasicUtil;
 import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.channels.Channels;
@@ -19,8 +19,7 @@ import java.util.stream.Collectors;
  * @date 2017年10月7日下午8:27:58
  */
 public final class Multipart {
-	
-	private static final Log LOG = LogFactory.getLog(Multipart.class);
+	private static final Logger LOOGER = LoggerFactory.getLogger(Multipart.class);
 	
 	private final Map<String, FileInf> fileInfo = new HashMap<>();
 	
@@ -29,7 +28,7 @@ public final class Multipart {
 			fileInfo.put(fileItem.getFieldName(), 
 					new FileInf(fileItem.getName(), fileItem.getInputStream()));
 		} catch (Exception e) {
-			LOG.error(null, e);
+			LOOGER.error(null, e);
 		}
 	}
 	
@@ -92,7 +91,7 @@ public final class Multipart {
 				channel.transferTo(0, channel.size(), Channels.newChannel(out));
 				return new File(location);
 			} catch (IOException e) {
-				LOG.error(null, e);
+				LOOGER.error(null, e);
 				return null;
 			} finally {
 				BasicUtil.closed(channel, out);
