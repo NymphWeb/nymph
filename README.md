@@ -1,6 +1,5 @@
 # Quick Start
 
-<<<<<<< HEAD
 #### ÅäÖÃÎÄ¼ş
 ##### * Ä¬ÈÏ¼ÓÔØclasspathÏÂµÄËùÓĞnymph¿ªÍ·µÄxml»òÕßymlÅäÖÃÎÄ¼ş
 
@@ -13,25 +12,10 @@ webConfig: #×¢Òâ²ã´Î Ã¿¸ö×ÓµÄÅäÖÃÓÃÒ»¸ö¿Õ¸ñ»òÕßtabËõ½ø
   suffix: .jsp   #·½·¨·µ»ØÖµÂ·¾¶µÄºó×º
   prefix: /WEB-INF #Í¬ÉÏ, Ç°×º
   exclutions:   #Ïë·ÅĞĞµÄ¾²Ì¬×ÊÔ´  Ò²¿ÉÒÔÖ±½Ó·ÅĞĞÕû¸öÎÄ¼ş¼Ğ Èç /css/*   /js/* ÕâÖÖ¸ñÊ½
-=======
-#### é…ç½®æ–‡ä»¶
-##### * é»˜è®¤åŠ è½½classpathä¸‹çš„æ‰€æœ‰nymphå¼€å¤´çš„xmlæˆ–è€…ymlé…ç½®æ–‡ä»¶
-
-###### nymph-demo.ymlé…ç½®æ–‡ä»¶
-```yml
-webConfig: #æ³¨æ„å±‚æ¬¡ æ¯ä¸ªå­çš„é…ç½®ç”¨ä¸€ä¸ªç©ºæ ¼æˆ–è€…tabç¼©è¿›
-  port: 9900 #å†…åµŒtomcatå¯ä»¥åœ¨æ­¤è®¾ç½®ç«¯å£å·ã€‚å¯¹è¯»å– web.xmlçš„tomcatæ¥è¯´è¿™é¡¹é…ç½®æ²¡ç”¨, åªèƒ½è‡ªå·±å»server.xmlé…ç½®
-  contextPath: '' #å¯¹äºå†…åµŒtomcatæ¥è¯´ä»–å°±è¡¨ç¤ºé¡¹ç›®å, å¯¹äºè¯»å–web.xmlçš„tomcatæ¥è¯´è¿™ä¸ªé…ç½®æ²¡æœ‰ä»»ä½•æ„ä¹‰
-  urlPattern: /   #è¡¨ç¤ºçš„æ˜¯ä½ å¸Œæœ›è®©Nymphå¤„ç†å“ªäº›url, / å’Œ /*è¡¨ç¤ºæ‰€æœ‰  åŒºåˆ«æ˜¯ / ä¸ä¼šæˆªå–åˆ°.jspåç¼€çš„url
-  suffix: .jsp   #æ–¹æ³•è¿”å›å€¼è·¯å¾„çš„åç¼€
-  prefix: /WEB-INF #åŒä¸Š, å‰ç¼€
-  exclutions:   #æƒ³æ”¾è¡Œçš„é™æ€èµ„æº  ä¹Ÿå¯ä»¥ç›´æ¥æ”¾è¡Œæ•´ä¸ªæ–‡ä»¶å¤¹ å¦‚ /css/*   /js/* è¿™ç§æ ¼å¼
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
    - '*.css'
    - '*.ico'
    - '*.jpg'
   filters:
-<<<<<<< HEAD
    - com.nymph.filter.TestFilter@*.do # @ºóÃæµÄ±íÊ¾À¹½ØµÄurlPattern ²»ÉèÖÃµÄ»°Ä¬ÈÏÊÇ/* À¹½ØËùÓĞ
   #Òì³£´¦ÀíÆ÷ÅäÖÃ ÅäÖÃµÄÀàĞèÒªÊµÏÖExceptionHandler½Ó¿Ú
   exceptionHandler: com.nymph.exception.impl.ExceptionHandlerImpl
@@ -43,38 +27,17 @@ component: #½«¸ø³öµÄÀà½»¸øÈİÆ÷¹ÜÀí
   - com.nymph.bean.Man
 ```
 ###### nymph-demo.xmlÅäÖÃÎÄ¼ş
-=======
-   - com.nymph.filter.TestFilter@*.do # @åé¢çš„è¡¨ç¤ºæ‹¦æˆªçš„urlPattern ä¸è®¾ç½®çš„è¯é»˜è®¤æ˜¯/* æ‹¦æˆªæ‰€æœ‰
-  #å¼‚å¸¸å¤„ç†å™¨é…ç½® é…ç½®çš„ç±»éœ€è¦å®ç°ExceptionHandleræ¥å£
-  exceptionHandler: com.nymph.exception.impl.ExceptionHandlerImpl
-  
-scanner: #ä½¿ç”¨äº†@Beans @HTTP ç›¸å…³æ³¨è§£çš„å¿…é¡»å¾—é…ç½®è¿™ä¸ª, è®©å®¹å™¨èƒ½æ‰«æåˆ°ä½ çš„ç±»
-  - com.nymph.web
-component: #å°†ç»™å‡ºçš„ç±»äº¤ç»™å®¹å™¨ç®¡ç†
-  - com.nymph.bean.Woman
-  - com.nymph.bean.Man
-```
-###### nymph-demo.xmlé…ç½®æ–‡ä»¶
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <nymph xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns="http://www.nymph.com/nymph" 
 	xsi:schemaLocation="http://www.nymph.com/nymph http://www.nymph.com/nymph">
-<<<<<<< HEAD
 	<!-- ±íÊ¾´Ë°üÏÂµÄÀà½«»á±»ÈİÆ÷É¨Ãèµ½, ²¢ÇÒ´øÓĞ@BeanÏà¹Ø×¢½âµÄÀà»á±»×¢²áµ½bean¹¤³§ -->	
-=======
-	<!-- è¡¨ç¤ºæ­¤åŒ…ä¸‹çš„ç±»å°†ä¼šè¢«å®¹å™¨æ‰«æåˆ°, å¹¶ä¸”å¸¦æœ‰@Beanç›¸å…³æ³¨è§£çš„ç±»ä¼šè¢«æ³¨å†Œåˆ°beanå·¥å‚ -->	
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
 	<scanners>
 		<scanner location="com.test"/>
 	</scanners>
 	
-<<<<<<< HEAD
 	<!-- webÓ¦ÓÃµÄÏà¹ØÅäÖÃ -->
-=======
-	<!-- webåº”ç”¨çš„ç›¸å…³é…ç½® -->
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
 	<webConfig>
 		<port value="9900"/>
 		<encoding value="UTF-8"/>
@@ -89,7 +52,6 @@ component: #å°†ç»™å‡ºçš„ç±»äº¤ç»™å®¹å™¨ç®¡ç†
 	</webConfig>
 </nymph>
 ```
-<<<<<<< HEAD
 #### HttpBean´úÂëÊµÀı
 ```java
 @HTTP("/start") // ±íÊ¾´ËÀàÊÇÒ»¸öHttpÇëÇóµÄÓ³ÉäÀà
@@ -99,7 +61,7 @@ public class HelloWorld {
 	private @Injection Man man;
 
 	// Ö»ÔÊĞíGetÇëÇó·ÃÎÊ´Ë·½·¨ @UrlHolder±íÊ¾urlÉÏÉùÃ÷µÄ±äÁ¿@test
-	@GET("/yes/@test")
+	@GET("/get/@test")
 	public String test(@UrlHolder("test") String field, Transfer transfer) {
 		// transferÊÇÄÚÖÃµÄÀà£¬ ÓÃÀ´½«Êı¾İ´æµ½servletµÄ¸÷×÷ÓÃÓò(request, session)
 		transfer.ofRequest("q", man);
@@ -109,43 +71,6 @@ public class HelloWorld {
 	}
 
 	// Ö»ÔÊĞíPostÇëÇó·ÃÎÊ´Ë·½·¨, @JSON±íÊ¾·µ»ØµÄ¶ÔÏó»á±»×ª»»Îªjson×Ö·û´®ÏìÓ¦µ½Ò³Ãæ
-	@POST("/no")
-	@JSON
-	public Man test2() {
-		return man;
-	}
-	
-	// ÎÄ¼şÉÏ´«µÄ´¦Àí
-	@GET("/upload")
-	public void test5(Multipart multipart) throws IOException {
-		// file±íÊ¾Ò³Ãæinput±êÇ©µÄname
-		FileInf fileInf = multipart.getFileInf("file");
-		// ½«ÎÄ¼şĞ´ÈëÖ¸¶¨µÄÎ»ÖÃ
-		fileInf.writeTo("c:/data/demo.jpg");
-	}
-	
-
-	// ÄÚÇ¶tomcatµÄĞÎÊ½Æô¶¯Ó¦ÓÃ
-=======
-#### HttpBeanä»£ç å®ä¾‹
-```java
-@HTTP("/start") // è¡¨ç¤ºæ­¤ç±»æ˜¯ä¸€ä¸ªHttpè¯·æ±‚çš„æ˜ å°„ç±»
-public class HelloWorld {
-
-	// è‡ªåŠ¨æ³¨å…¥Mançš„å®ä¾‹, å¦‚æœå®¹å™¨ä¸­å­˜åœ¨
-	private @Injection Man man;
-
-	// åªå…è®¸Getè¯·æ±‚è®¿é—®æ­¤æ–¹æ³• @UrlHolderè¡¨ç¤ºurlä¸Šå£°æ˜çš„å˜é‡@test
-	@GET("/get/@test")
-	public String test(@UrlHolder("test") String field, Transfer transfer) {
-		// transferæ˜¯å†…ç½®çš„ç±»ï¼Œ ç”¨æ¥å°†æ•°æ®å­˜åˆ°servletçš„å„ä½œç”¨åŸŸ(request, session)
-		transfer.ofRequest("q", man);
-		// è¡¨ç¤ºè½¬å‘åˆ°/WEB-INF/index.jsp
-		// å½“è¿”å›å€¼ä¸º"->/index"æ—¶è¡¨ç¤ºé‡å®šå‘
-		return "/index";
-	}
-
-	// åªå…è®¸Postè¯·æ±‚è®¿é—®æ­¤æ–¹æ³•, @JSONè¡¨ç¤ºè¿”å›çš„å¯¹è±¡ä¼šè¢«è½¬æ¢ä¸ºjsonå­—ç¬¦ä¸²å“åº”åˆ°é¡µé¢
 	@POST("/post/@test")
 	@JSON
 	public Man test2(@UrlHolder String test) {
@@ -153,57 +78,41 @@ public class HelloWorld {
 		return man;
 	}
 	
-	// æ–‡ä»¶ä¸Šä¼ 
+	// ÎÄ¼şÉÏ´«
 	@GET("/upload")
 	public void test3(Multipart multipart) throws IOException {
-		// fileè¡¨ç¤ºé¡µé¢inputæ ‡ç­¾çš„name
+		// file±íÊ¾Ò³Ãæinput±êÇ©µÄname
 		FileInf fileInf = multipart.getFileInf("file");
-		// å°†æ–‡ä»¶å†™å…¥æŒ‡å®šçš„ä½ç½®
+		// ½«ÎÄ¼şĞ´ÈëÖ¸¶¨µÄÎ»ÖÃ
 		fileInf.writeTo("c:/data/demo.jpg");
 	}
 	
-	// æ–‡ä»¶ä¸‹è½½
+	// ÎÄ¼şÏÂÔØ
 	@GET("/downloads")
 	public void test4(Share share) {
 		share.shareFile("C:/hello.jpg");
 	}
 
-	// å†…åµŒtomcatçš„å½¢å¼å¯åŠ¨åº”ç”¨
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
+	// ÄÚÇ¶tomcatµÄĞÎÊ½Æô¶¯Ó¦ÓÃ
 	public static void main(String[] args) {
 		MainStarter.start(HelloWorld.class);
 	}
 }
 ```
 
-<<<<<<< HEAD
 #### Í¨¹ıHttpChannel»ñÈ¡HttpBean·¢³öµÄĞòÁĞ»¯¶ÔÏó
 ```java
+// ·şÎñ¶Ë
 @HTTP("/demo")
 public class HttpTest {
 
-	// ¹ØÓÚĞòÁĞ»¯¶ÔÏóµÄ´«Êä
-	@GET("/class")
-	@Serialize
-	public Man test3(Share share) {
-		// ·¢ËÍÒ»¸öĞòÁĞ»¯¶ÔÏó
-		Man man = new Man();
-		man.setName("ÕÅÑ§ÓÑ");
-=======
-#### é€šè¿‡HttpChannelè·å–HttpBeanå‘å‡ºçš„åºåˆ—åŒ–å¯¹è±¡
-```java
-// æœåŠ¡ç«¯
-@HTTP("/demo")
-public class HttpTest {
-
-	// å…³äºåºåˆ—åŒ–å¯¹è±¡çš„ä¼ è¾“ @Serializeæ³¨è§£è¡¨ç¤ºè¿”å›çš„å¯¹è±¡å°†è¢«åºåˆ—åŒ–åˆ°å“åº”å¤´ä¸­ï¼ˆè¿”å›çš„å¯¹è±¡éœ€è¦å®ç°Serializableæ¥å£ï¼‰
+	// ¹ØÓÚĞòÁĞ»¯¶ÔÏóµÄ´«Êä @Serialize×¢½â±íÊ¾·µ»ØµÄ¶ÔÏó½«±»ĞòÁĞ»¯µ½ÏìÓ¦Í·ÖĞ£¨·µ»ØµÄ¶ÔÏóĞèÒªÊµÏÖSerializable½Ó¿Ú£©
 	@GET("/class")
 	@Serialize
 	public Man test() {
-		// å‘é€ä¸€ä¸ªåºåˆ—åŒ–å¯¹è±¡
+		// ·¢ËÍÒ»¸öĞòÁĞ»¯¶ÔÏó
 		Man man = new Man();
-		man.setName("å¼ å­¦å‹");
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
+		man.setName("ÕÅÑ§ÓÑ");
 		return man;
 	}
 	
@@ -212,29 +121,15 @@ public class HttpTest {
 	}
 }
 
-<<<<<<< HEAD
-=======
-// å®¢æˆ·ç«¯
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
+// ¿Í»§¶Ë
 public class Test {
 	public static void main(String[] args) {
 		HttpChannel channel = new HttpChannel("127.0.0.1", 9900);
 		Man man = (Man)channel.getObject("/demo/class", Pattern.GET);
 		System.out.println(man.getName());
-<<<<<<< HEAD
 		// ´Ë´¦manµÄnameÎª "ÕÅÑ§ÓÑ"
-		
-		// Ö»Ê¹ÓÃÒ»´ÎµÄÊ±ºòÓ¦¸Ã¹ØµôsocketÁ¬½Ó
-		channel.close();
-=======
-		// æ­¤å¤„mançš„nameä¸º "å¼ å­¦å‹"
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
 	}
 }
 ```
-
-<<<<<<< HEAD
-* author: ÁõÑó, ÁºÌì¶«
-=======
-* author: åˆ˜æ´‹, æ¢å¤©ä¸œ
->>>>>>> b151ce2e14ffcc6001f3d432fab7a9f2e1536c46
+* author: ÁõÑó(QQ: 564778568)
+* author: ÁºÌì¶«(QQ: 1275976240)
