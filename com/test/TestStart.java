@@ -16,6 +16,7 @@ import com.nymph.transfer.Multipart.FileInf;
 import com.nymph.transfer.Transfer;
 
 @HTTP("/demo")
+@Starter
 public class TestStart {
 
 	private @Injection Man man;

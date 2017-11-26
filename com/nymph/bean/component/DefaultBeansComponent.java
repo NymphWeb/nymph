@@ -10,7 +10,7 @@ import java.util.Optional;
 import com.nymph.annotation.Components;
 import com.nymph.bean.BeansComponent;
 import com.nymph.interceptor.EnableInterceptor;
-import com.nymph.interceptor.NyInterceptors;
+import com.nymph.interceptor.Interceptors;
 import com.nymph.utils.AnnoUtil;
 
 /**
@@ -27,7 +27,7 @@ public class DefaultBeansComponent implements BeansComponent {
 	/**
 	 *  过滤器链
 	 */
-	private final List<NyInterceptors> interceptors = new LinkedList<>();
+	private final List<Interceptors> interceptors = new LinkedList<>();
 	
 	@Override
 	public Optional<Object> getComponent(Class<? extends Annotation> anno) {
@@ -35,7 +35,7 @@ public class DefaultBeansComponent implements BeansComponent {
 	}
 
 	@Override
-	public List<NyInterceptors> getInterceptors() {
+	public List<Interceptors> getInterceptors() {
 		return interceptors;
 	}
 
@@ -43,7 +43,7 @@ public class DefaultBeansComponent implements BeansComponent {
 	public void filter(Object bean) {
 		Class<?> beanClass = bean.getClass();
 		if (beanClass.isAnnotationPresent(EnableInterceptor.class)) {
-			interceptors.add((NyInterceptors)bean);
+			interceptors.add((Interceptors)bean);
 			return;
 		}
 

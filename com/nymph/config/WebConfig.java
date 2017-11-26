@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 /**
- * @comment 	
+ * web相关的配置类
  * @author LiuYang
  * @author LiangTianDong
  * @date 2017年10月2日下午4:19:40

@@ -13,6 +13,7 @@ import javax.servlet.ServletRegistration.Dynamic;
 
 import com.nymph.bean.BeansHandler;
 import com.nymph.config.ConfRead;
+import com.nymph.context.WebApplicationInitialization;
 import com.nymph.utils.BasicUtil;
 
 /**
@@ -20,7 +21,7 @@ import com.nymph.utils.BasicUtil;
  * @author NYMPH
  * @date 2017年10月11日上午11:48:29
  */
-public class WebXmlStarter extends WebApplicationContext implements ServletContextListener {
+public class WebXmlStarter extends WebApplicationInitialization implements ServletContextListener {
 
 	/**
 	 *  context param 中的name的名称, web.xml方式时使用的配置,用于指定yml文件的名称
@@ -31,26 +32,25 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 	public void contextInitialized(ServletContextEvent sce) {
 		// 加载配置文件
 		ServletContext context = sce.getServletContext();
-		loadYml(context.getInitParameter(CONFIGURATIONS_PARAM_NAME));
+		loadConfig(context.getInitParameter(CONFIGURATIONS_PARAM_NAME));
 		
 		// 实例化bean处理器
-		Optional<String> handler = configuration.getBeansHandler();
+		Optional<String> handler = getConfiguration().getBeansHandler();
 		String finalClass = handler.orElse(DEFAULT_BEANS_HANDLER);
 		BeansHandler beansHandler = BasicUtil.newInstance(finalClass);
-		beansFactory.setBeansHandler(beansHandler);
-		beansFactory.setConfiguration(configuration);
+		getBeansFactory().setBeansHandler(beansHandler);
+		getBeansFactory().setConfiguration(getConfiguration());
 		// 将所有bean对象注册到bean容器
-		beansFactory.register();
-		// 获取httpBeanContainer
-		loadResource(context);
+		getBeansFactory().register();
+		loadServlets(context);
 	}
 	
 	/**
-	 * 加载必须的资源
+	 * 加载必须的servlet
 	 * @param context	servletContext对象
 	 */
-	public void loadResource(ServletContext context) {
-		config = configuration.getWebConfig();
+	public void loadServlets(ServletContext context) {
+		config = getConfiguration().getWebConfig();
 		// 加载编码过滤器
 		javax.servlet.FilterRegistration.Dynamic filter = 
 				context.addFilter("ENCODING", DEFAULT_ENCODING_FILTER);
@@ -67,11 +67,10 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 		Dynamic servlet = context.addServlet("Nymph", CORE_REQUEST_DISPATCHER);
 		servlet.addMapping(config.getUrlPattern());
 		servlet.setAsyncSupported(true);
-		servlet.setLoadOnStartup(1);
 
 		try {
 			loadCustomFilter(context, config.getFilters());
-			loadEqulasConfig();
+			initBaseConfig();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -91,8 +90,7 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 				urlPattern = split[1];
 				filter = split[0];
 			}
-
-			javax.servlet.FilterRegistration.Dynamic dynamic = 
+			javax.servlet.FilterRegistration.Dynamic dynamic =
 					context.addFilter(filter, filter);
 
 			dynamic.setAsyncSupported(true); // 设置过滤器的异步支持
@@ -105,12 +103,11 @@ public class WebXmlStarter extends WebApplicationContext implements ServletConte
 	 * 加载yml配置文件
 	 * @param location yml配置文件的位置
 	 */
-	private void loadYml(String location) {
-		if (location.indexOf(",") < 0) {
-			configuration = ConfRead.readConf(location);
-		} else {
-			configuration = ConfRead.readConf(location.split(","));
-		}
+	private void loadConfig(String location) {
+		if (location.indexOf(",") < 0)
+			setConfiguration(ConfRead.readConf(location));
+		else
+			setConfiguration(ConfRead.readConf(location.split(",")));
 	}
 
 	@Override

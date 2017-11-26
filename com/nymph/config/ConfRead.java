@@ -11,17 +11,15 @@ public class ConfRead {
 		Configuration configuration = null;
 		for (String file : location) {
 			if (file.endsWith(".xml")) {
-				if (configuration == null) {
+				if (configuration == null)
 					configuration = XmlRead.readXml(file);
-				} else {
+				else
 					configuration.addConfiguration(XmlRead.readXml(file));
-				}
 			} else {
-				if (configuration == null) {
+				if (configuration == null)
 					configuration = YmlRead.readYml(file);
-				} else {
+				else
 					configuration.addConfiguration(YmlRead.readYml(file));
-				}
 			}
 		}
 		return configuration;

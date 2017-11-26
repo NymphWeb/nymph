@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.nymph.context.WebApplicationInitialization;
 import org.apache.catalina.Context;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.core.StandardContext;
@@ -19,17 +20,16 @@ import org.apache.tomcat.util.descriptor.web.FilterDef;
 import org.apache.tomcat.util.descriptor.web.FilterMap;
 
 import com.nymph.bean.BeansHandler;
-import com.nymph.bean.web.DefaultWebApplicationBeansFactory;
 import com.nymph.config.ConfRead;
 import com.nymph.utils.BasicUtil;
 
 /**
- * 内嵌tomcat, 用main方法启动这个应用即可
+ * 内嵌tomcat,  实现main方法启动应用
  * @date 2017年9月17日上午2:33:52
  * @author LiuYang
  * @author LiangTianDong
  */
-public class MainStarter extends WebApplicationContext {
+public class MainStarter extends WebApplicationInitialization {
 	// Tomcat实例
 	private static final Tomcat TOMCAT = new Tomcat();
 	// MainStarter实例
@@ -58,7 +58,7 @@ public class MainStarter extends WebApplicationContext {
 		// 初始化bean工厂
 		initBeansFactory();
 
-		config = Objects.requireNonNull(configuration.getWebConfig());
+		config = Objects.requireNonNull(getConfiguration().getWebConfig());
 		// 设置端口
 		TOMCAT.setPort(config.getPort());
 		// 设置catalina home
@@ -69,8 +69,7 @@ public class MainStarter extends WebApplicationContext {
 		 * 因为并不能读取到jar包内的jsp文件
 		 */
 		Optional<String> webPath = config.getWebappPath();
-		String source = BasicUtil.getSource("src/main/webapp");
-		String rootPath = webPath.orElse(source);
+		String rootPath = webPath.orElse(BasicUtil.getSource("src/main/webapp"));
 		File webapp = new File(rootPath);
 		
 		if (!webapp.exists()) {
@@ -80,7 +79,6 @@ public class MainStarter extends WebApplicationContext {
 			webapp = new File(BasicUtil.getSource("WebRoot"));
 		}
 
-		
 		Context context = new StandardContext();
 		context.setPath(config.getContextPath());
 		context.addLifecycleListener(new FixContextListener());
@@ -92,7 +90,7 @@ public class MainStarter extends WebApplicationContext {
 		// 加载过滤器和servlet
 		loadFilter(context);
 		loadServlets(context);
-		loadEqulasConfig();
+		initBaseConfig();
 
 		TOMCAT.getHost().addChild(context);
 		TOMCAT.start();
@@ -104,23 +102,23 @@ public class MainStarter extends WebApplicationContext {
 	 * @param clazz
 	 */
 	protected void initConfiguration(Class<?> clazz) {
-		NymphStarter starter = clazz.getAnnotation(NymphStarter.class);
+		Starter starter = clazz.getAnnotation(Starter.class);
 		if (starter == null) {
-			throw new IllegalArgumentException("Starter class require use @NymphStarter annotation");
+			throw new IllegalArgumentException("Starter class require use @Starter annotation");
 		}
 		String[] configurations = starter.configurations();
 		String[] packageScanner = starter.packageScanner();
 
 		if (configurations.length == 0) {
-			configuration = ConfRead.readConf(defaultConf());
+			setConfiguration(ConfRead.readConf(defaultConf()));
 		} else {
-			configuration = ConfRead.readConf(configurations);
+			setConfiguration(ConfRead.readConf(configurations));
 		}
 
 		if (packageScanner.length == 0) {
-			configuration.setScanner(Arrays.asList(clazz.getPackage().getName()));
+			getConfiguration().setScanner(Arrays.asList(clazz.getPackage().getName()));
 		} else {
-			configuration.setScanner(Arrays.asList(packageScanner));
+			getConfiguration().setScanner(Arrays.asList(packageScanner));
 		}
 	}
 	
@@ -146,14 +144,13 @@ public class MainStarter extends WebApplicationContext {
 	 */
 	protected void initBeansFactory() {
 		// 实例化bean处理器
-		beansFactory = new DefaultWebApplicationBeansFactory();
-		beansFactory.setConfiguration(configuration);
-		Optional<String> handler = configuration.getBeansHandler();
+		getBeansFactory().setConfiguration(getConfiguration());
+		Optional<String> handler = getConfiguration().getBeansHandler();
 		String handlerClass = handler.orElse(DEFAULT_BEANS_HANDLER);
 		BeansHandler beansHandler = BasicUtil.newInstance(handlerClass);
-		beansFactory.setBeansHandler(beansHandler);
-		// 将所有bean对象注册到bean容器
-		beansFactory.register();
+		getBeansFactory().setBeansHandler(beansHandler);
+		// 将所有bean对象注册到bean工厂
+		getBeansFactory().register();
 	}
 
 	/**
@@ -169,7 +166,6 @@ public class MainStarter extends WebApplicationContext {
 		Wrapper dispatcher = Tomcat.addServlet(context, "Nymph", CORE_REQUEST_DISPATCHER);
 		dispatcher.setAsyncSupported(true);
 		dispatcher.addMapping(config.getUrlPattern());
-		dispatcher.setLoadOnStartup(1);
 	}
 
 	/**

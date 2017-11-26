@@ -55,6 +55,7 @@ component: #将给出的类交给容器管理
 #### HttpBean代码实例
 ```java
 @HTTP("/start") // 表示此类是一个Http请求的映射类
+@Starter // 启动类必须标注此注解
 public class HelloWorld {
 
 	// 自动注入Man的实例, 如果容器中存在
@@ -104,6 +105,7 @@ public class HelloWorld {
 ```java
 // 服务端
 @HTTP("/demo")
+@Starter
 public class HttpTest {
 
 	// 关于序列化对象的传输 @Serialize注解表示返回的对象将被序列化到响应头中（返回的对象需要实现Serializable接口）

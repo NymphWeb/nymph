@@ -1,6 +1,6 @@
 package com.nymph.bean;
 
-import com.nymph.interceptor.NyInterceptors;
+import com.nymph.interceptor.Interceptors;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
@@ -18,7 +18,7 @@ public interface BeansComponent {
 	 * 获取拦截器链
 	 * @return
 	 */
-	List<NyInterceptors> getInterceptors();
+	List<Interceptors> getInterceptors();
 	/**
 	 * 过滤出组件的Bean
 	 * @param bean bean实例

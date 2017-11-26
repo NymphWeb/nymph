@@ -185,7 +185,7 @@ public class HttpChannel {
      * @return
      */
     private String format(String[] form) {
-        return Arrays.toString(form).replaceAll("[\\[\\]]", "").replace("=", "&");
+        return Arrays.toString(form).replaceAll("[\\[\\]]", "").replace(", ", "&");
     }
 
     /**

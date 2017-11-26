@@ -16,9 +16,7 @@ import com.nymph.utils.BasicUtil;
 public final class XmlRead {
 	// dom4j api
 	private static final SAXReader SAX = new SAXReader();
-	// component解析
-	private static final XmlComponent COMPONENTS = new XmlComponent();
-	
+
 	/**
 	 * 读取多个xml配置文件
 	 * @param locations
@@ -51,7 +49,7 @@ public final class XmlRead {
 
 		// 组件
 		List<Element> components = element.elements("component");
-		List<Object> component = COMPONENTS.component(components);
+		List<Object> component = Components.component(components);
 		configuration.setComponent(component);
 		
 		// bean处理器
@@ -125,7 +123,7 @@ public final class XmlRead {
 	 * @param element
 	 * @return
 	 */
-	private static String attrValue(Element element) {
+	static String attrValue(Element element) {
 		if (element == null)
 			return null;
 		return element.attribute(0) == null ? null : element.attribute(0).getValue();
